@@ -35,7 +35,7 @@ export default function DashboardLayout({
                 <MessageSquare className="w-6 h-6 text-primary" />
               </div>
               <h2 className="text-white font-bold text-lg hidden lg:block">
-                CRM
+                CRM Ramayo Propiedades
               </h2>
             </div>
 
@@ -46,11 +46,10 @@ export default function DashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
-                      isActive
+                    className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${isActive
                         ? "bg-primary text-white"
                         : "text-gray-medium hover:bg-gray-medium/10 hover:text-white"
-                    }`}
+                      }`}
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className="font-medium hidden lg:block">
