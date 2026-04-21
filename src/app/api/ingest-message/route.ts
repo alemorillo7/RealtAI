@@ -3,11 +3,14 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    const { phone_number, user_name, message, sender = "user" } = await req.json();
+    let { phone_number, user_name, message, sender = "user" } = await req.json();
 
     if (!phone_number || !message) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
     }
+
+    // Normalizar quitando el '+' si viene incluido
+    phone_number = phone_number.replace(/^\+/, '');
 
     const timestamp = new Date();
 

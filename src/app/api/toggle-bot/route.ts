@@ -3,11 +3,13 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    const { phone_number, agent_active } = await req.json();
+    let { phone_number, agent_active } = await req.json();
 
     if (!phone_number || typeof agent_active !== "boolean") {
       return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
     }
+
+    phone_number = phone_number.replace(/^\+/, '');
 
     await adminDb.collection("chats").doc(phone_number).update({
       agent_active,

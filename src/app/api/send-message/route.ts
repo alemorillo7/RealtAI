@@ -5,11 +5,13 @@ const N8N_WEBHOOK_URL = "https://automation8n.fluxia.site/webhook/215cda7d-ad06-
 
 export async function POST(req: Request) {
   try {
-    const { phone_number, message } = await req.json();
+    let { phone_number, message } = await req.json();
 
     if (!phone_number || !message) {
       return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
     }
+
+    phone_number = phone_number.replace(/^\+/, '');
 
     // 1. Guardar mensaje optimísticamente en Firebase DB
     const timestamp = new Date();
