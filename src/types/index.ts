@@ -13,6 +13,7 @@ export interface Message {
   sender: 'user' | 'agent';
   message: string;
   created_at: FirebaseFirestore.Timestamp | any;
+  type?: 'text' | 'audio' | string;
 }
 
 export interface Contact {

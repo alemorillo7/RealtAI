@@ -13,11 +13,13 @@ if (!admin.apps.length) {
       }
 
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert(serviceAccount),
+        storageBucket: "ramayopropiedades-2ce88.firebasestorage.app"
       });
     } else {
       admin.initializeApp({
-        credential: admin.credential.applicationDefault()
+        credential: admin.credential.applicationDefault(),
+        storageBucket: "ramayopropiedades-2ce88.firebasestorage.app"
       });
     }
   } catch (error) {

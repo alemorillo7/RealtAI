@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Message } from "@/types";
 import BotToggle from "./BotToggle";
 import TagSelector from "./TagSelector";
 import ChatInput from "./ChatInput";
 import { format } from "date-fns";
-import { UserCircle2 } from "lucide-react";
+import { UserCircle2, Trash2 } from "lucide-react";
 
 interface Props {
   chatId: string;
@@ -16,9 +16,17 @@ interface Props {
 
 export default function ChatWindow({ chatId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [chatName, setChatName] = useState<string>(chatId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Escuchar el documento principal del chat para obtener el nombre
+    const unsubChat = onSnapshot(doc(db, "chats", chatId), (docSnap) => {
+      if (docSnap.exists()) {
+        setChatName(docSnap.data().user_name || chatId);
+      }
+    });
+
     // Escuchar mensajes
     const q = query(
       collection(db, "messages"),
@@ -35,13 +43,29 @@ export default function ChatWindow({ chatId }: Props) {
       scrollToBottom();
     });
 
-    return () => unsubscribe();
+    return () => { unsubscribe(); unsubChat(); };
   }, [chatId]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
+  };
+
+  const handleDeleteChat = async () => {
+    if (confirm("¿Estás seguro de que deseas eliminar permanentemente esta conversación? (El contacto seguirá guardado en tu libreta).")) {
+      try {
+        await fetch('/api/delete-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone_number: chatId })
+        });
+        window.location.href = '/dashboard';
+      } catch (e) {
+        console.error(e);
+        alert("Error al eliminar el chat");
+      }
+    }
   };
 
   const renderMessageWithLinks = (text: string) => {
@@ -75,10 +99,18 @@ export default function ChatWindow({ chatId }: Props) {
             <UserCircle2 className="w-6 h-6 text-gray-medium" />
           </div>
           <div>
-            <h3 className="text-white font-medium">{chatId}</h3>
+            <h3 className="text-white font-medium">{chatName}</h3>
+            {chatName !== chatId && <p className="text-xs text-gray-medium">{chatId}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button 
+            onClick={handleDeleteChat}
+            className="p-1.5 text-gray-medium hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+            title="Eliminar Conversación"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
           <TagSelector chatId={chatId} />
           <BotToggle chatId={chatId} />
         </div>
@@ -94,13 +126,19 @@ export default function ChatWindow({ chatId }: Props) {
               className={`flex ${isAgent ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2 ${
                   isAgent
                     ? "bg-primary text-white rounded-br-sm"
                     : "bg-bg-dark border border-gray-medium/20 text-white rounded-bl-sm"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap break-words">{renderMessageWithLinks(msg.message)}</p>
+                {msg.type === "audio" ? (
+                  <audio controls src={msg.message} className="max-w-full h-10 mt-1 mb-1" />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap break-words">
+                    {renderMessageWithLinks(msg.message)}
+                  </p>
+                )}
                 {msg.created_at && (
                   <p
                     className={`text-[10px] mt-1 text-right ${
