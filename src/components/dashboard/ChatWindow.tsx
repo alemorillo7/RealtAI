@@ -44,6 +44,28 @@ export default function ChatWindow({ chatId }: Props) {
     }, 100);
   };
 
+  const renderMessageWithLinks = (text: string) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline font-medium hover:opacity-80 transition-opacity"
+          >
+            {part}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-bg-soft">
       {/* Header */}
@@ -78,7 +100,7 @@ export default function ChatWindow({ chatId }: Props) {
                     : "bg-bg-dark border border-gray-medium/20 text-white rounded-bl-sm"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                <p className="text-sm whitespace-pre-wrap break-words">{renderMessageWithLinks(msg.message)}</p>
                 {msg.created_at && (
                   <p
                     className={`text-[10px] mt-1 text-right ${
