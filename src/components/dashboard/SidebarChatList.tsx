@@ -1,0 +1,104 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Chat } from "@/types";
+import { Search, UserCircle2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
+
+interface Props {
+  selectedChatId: string | null;
+  onSelectChat: (id: string) => void;
+}
+
+export default function SidebarChatList({ selectedChatId, onSelectChat }: Props) {
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const q = query(collection(db, "chats"), orderBy("updated_at", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const chatsData: Chat[] = [];
+      snapshot.forEach((doc) => {
+        chatsData.push({ ...doc.data() } as Chat);
+      });
+      setChats(chatsData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const filteredChats = chats.filter((chat) =>
+    (chat.user_name || chat.phone_number)
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="flex flex-col h-full bg-bg-soft">
+      <div className="p-4 border-b border-gray-medium/20">
+        <h2 className="text-xl font-bold text-white mb-4">Conversaciones</h2>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-medium" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-medium/30 rounded-lg bg-bg-dark text-white placeholder-gray-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm transition-colors"
+            placeholder="Buscar chats..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {filteredChats.map((chat) => {
+          const isSelected = chat.phone_number === selectedChatId;
+          return (
+            <button
+              key={chat.phone_number}
+              onClick={() => onSelectChat(chat.phone_number)}
+              className={`w-full text-left p-4 border-b border-gray-medium/10 flex items-start gap-3 transition-colors ${
+                isSelected
+                  ? "bg-primary/20 border-l-4 border-l-primary"
+                  : "hover:bg-bg-dark border-l-4 border-l-transparent"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-medium/20 flex items-center justify-center flex-shrink-0">
+                <UserCircle2 className="w-7 h-7 text-gray-medium" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline mb-1">
+                  <h3 className="text-white font-medium truncate">
+                    {chat.user_name || chat.phone_number}
+                  </h3>
+                  {chat.updated_at && (
+                    <span className="text-xs text-gray-medium whitespace-nowrap ml-2">
+                      {formatDistanceToNow(chat.updated_at.toDate(), {
+                        addSuffix: true,
+                        locale: es,
+                      })}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-medium truncate pr-2">
+                    {chat.phone_number}
+                  </p>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      chat.agent_active ? "bg-primary" : "bg-gray-medium"
+                    }`}
+                  />
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
