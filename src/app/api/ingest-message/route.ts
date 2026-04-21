@@ -16,6 +16,23 @@ export async function POST(req: Request) {
 
     const timestamp = new Date();
 
+    // 1.5 Verificar si existe en Contactos, si no, auto-crearlo
+    const contactsRef = adminDb.collection("contacts");
+    const contactSnapshot = await contactsRef.where("phone_number", "==", phone_number).limit(1).get();
+    
+    let finalUserName = user_name || phone_number;
+
+    if (contactSnapshot.empty) {
+      await contactsRef.add({
+        phone_number,
+        name: finalUserName,
+        created_at: timestamp,
+      });
+    } else {
+      // Si ya exite el contacto, usamos el nombre que tenga guardado en el CRM
+      finalUserName = contactSnapshot.docs[0].data().name || finalUserName;
+    }
+
     // 1. Guardar o actualizar el Chat
     const chatRef = adminDb.collection("chats").doc(phone_number);
     const chatSnap = await chatRef.get();
@@ -23,7 +40,7 @@ export async function POST(req: Request) {
     if (!chatSnap.exists) {
       await chatRef.set({
         phone_number,
-        user_name: user_name || phone_number,
+        user_name: finalUserName,
         agent_active: true, // Bot is active by default
         updated_at: timestamp,
         tags: [],
@@ -31,7 +48,7 @@ export async function POST(req: Request) {
     } else {
       await chatRef.update({
         updated_at: timestamp,
-        ...(user_name && { user_name }), // update user_name if provided
+        user_name: finalUserName,
       });
     }
 

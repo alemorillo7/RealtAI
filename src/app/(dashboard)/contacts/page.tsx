@@ -51,22 +51,34 @@ export default function ContactsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      let finalPhone = phone.trim();
+      if (!finalPhone.startsWith('+')) finalPhone = '+' + finalPhone;
+
       if (editingContact) {
         await updateDoc(doc(db, "contacts", editingContact.id), {
           name,
-          phone_number: phone,
+          phone_number: finalPhone,
           email,
           notes,
         });
       } else {
         await addDoc(collection(db, "contacts"), {
           name,
-          phone_number: phone,
+          phone_number: finalPhone,
           email,
           notes,
           created_at: new Date(),
         });
       }
+
+      // Sincronizar el nombre con el Chat asociado si existe (para reflejar en el Sidebar instantáneamente)
+      try {
+        const { setDoc } = await import("firebase/firestore");
+        await setDoc(doc(db, "chats", finalPhone), { user_name: name, phone_number: finalPhone }, { merge: true });
+      } catch (e) {
+        console.error("No se pudo sincronizar el chat", e);
+      }
+
       resetForm();
     } catch (error) {
       console.error("Error saving contact", error);
