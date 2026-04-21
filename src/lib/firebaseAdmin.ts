@@ -6,6 +6,12 @@ if (!admin.apps.length) {
     if (serviceAccountStr) {
       // Parse if it's a JSON string, otherwise handle string literals
       const serviceAccount = JSON.parse(serviceAccountStr);
+      
+      // Fix for Vercel environment variables escaping \n
+      if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      }
+
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
