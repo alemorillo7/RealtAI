@@ -82,7 +82,7 @@ export default function ChatWindow({ chatId }: Props) {
                 {msg.created_at && (
                   <p
                     className={`text-[10px] mt-1 text-right ${
-                      isAgent ? "text-primary-dark/80" : "text-gray-medium"
+                      isAgent ? "text-white/80" : "text-gray-medium"
                     }`}
                   >
                     {format(msg.created_at.toDate(), "HH:mm")}
