@@ -84,7 +84,7 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
                     </span>
                   )}
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mt-1">
                   <p className="text-sm text-gray-medium truncate pr-2">
                     {chat.phone_number}
                   </p>
@@ -103,6 +103,18 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
                     {chat.agent_active ? "Bot ON" : "Bot OFF"}
                   </div>
                 </div>
+                {chat.tags && chat.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {chat.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-1.5 py-0.5 rounded text-[10px] bg-gray-medium/10 border border-gray-medium/20 text-gray-light whitespace-nowrap"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </button>
           );

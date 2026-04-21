@@ -5,6 +5,7 @@ import { collection, query, where, orderBy, onSnapshot } from "firebase/firestor
 import { db } from "@/lib/firebase";
 import { Message } from "@/types";
 import BotToggle from "./BotToggle";
+import TagSelector from "./TagSelector";
 import ChatInput from "./ChatInput";
 import { format } from "date-fns";
 import { UserCircle2 } from "lucide-react";
@@ -55,7 +56,10 @@ export default function ChatWindow({ chatId }: Props) {
             <h3 className="text-white font-medium">{chatId}</h3>
           </div>
         </div>
-        <BotToggle chatId={chatId} />
+        <div className="flex items-center gap-2">
+          <TagSelector chatId={chatId} />
+          <BotToggle chatId={chatId} />
+        </div>
       </div>
 
       {/* Messages */}
