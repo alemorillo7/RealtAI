@@ -3,7 +3,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    const { phone_number, user_name, message } = await req.json();
+    const { phone_number, user_name, message, sender = "user" } = await req.json();
 
     if (!phone_number || !message) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     await adminDb.collection("messages").add({
       phone_number,
       message,
-      sender: "user",
+      sender: sender,
       created_at: timestamp,
     });
 
