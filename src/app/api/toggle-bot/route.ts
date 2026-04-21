@@ -9,7 +9,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
     }
 
-    phone_number = phone_number.replace(/^\+/, '');
+    if (!phone_number.startsWith('+')) {
+      phone_number = '+' + phone_number;
+    }
 
     await adminDb.collection("chats").doc(phone_number).update({
       agent_active,

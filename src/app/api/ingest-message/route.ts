@@ -9,8 +9,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
     }
 
-    // Normalizar quitando el '+' si viene incluido
-    phone_number = phone_number.replace(/^\+/, '');
+    // Normalizar asegurando que SIEMPRE empiece con '+'
+    if (!phone_number.startsWith('+')) {
+      phone_number = '+' + phone_number;
+    }
 
     const timestamp = new Date();
 

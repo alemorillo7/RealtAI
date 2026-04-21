@@ -11,7 +11,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
     }
 
-    phone_number = phone_number.replace(/^\+/, '');
+    if (!phone_number.startsWith('+')) {
+      phone_number = '+' + phone_number;
+    }
 
     // 1. Guardar mensaje optimísticamente en Firebase DB
     const timestamp = new Date();

@@ -10,7 +10,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Falta phone_number" }, { status: 400 });
     }
 
-    phone_number = phone_number.replace(/^\+/, '');
+    if (!phone_number.startsWith('+')) {
+      phone_number = '+' + phone_number;
+    }
 
     const chatSnap = await adminDb.collection("chats").doc(phone_number).get();
 
