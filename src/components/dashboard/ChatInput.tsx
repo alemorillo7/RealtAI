@@ -36,24 +36,24 @@ export default function ChatInput({ chatId }: Props) {
   };
 
   return (
-    <div className="p-4 bg-bg-soft border-t border-gray-medium/20">
-      <form onSubmit={handleSend} className="flex gap-2">
+    <div className="p-4 md:px-6 md:pb-6 bg-transparent">
+      <form onSubmit={handleSend} className="flex gap-3 bg-bg-soft/60 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-lg shadow-black/20 focus-within:border-primary/50 focus-within:shadow-primary/10 transition-all duration-300">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 bg-bg-dark border border-gray-medium/30 rounded-lg px-4 py-3 text-white placeholder-gray-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+          placeholder="Escribe un mensaje para enviar..."
+          className="flex-1 bg-transparent border-none px-4 py-2 text-white placeholder-gray-medium focus:outline-none focus:ring-0 sm:text-sm"
         />
         <button
           type="submit"
           disabled={loading || !message.trim()}
-          className="bg-primary hover:bg-primary-dark text-white px-5 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="bg-primary hover:bg-primary-dark text-white p-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm active:scale-95"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
-            <Send className="w-5 h-5" />
+            <Send className="w-5 h-5 translate-x-[-1px] translate-y-[1px]" />
           )}
         </button>
       </form>

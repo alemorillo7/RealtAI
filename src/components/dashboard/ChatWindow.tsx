@@ -8,7 +8,8 @@ import BotToggle from "./BotToggle";
 import TagSelector from "./TagSelector";
 import ChatInput from "./ChatInput";
 import { format } from "date-fns";
-import { UserCircle2, Trash2 } from "lucide-react";
+import { es } from "date-fns/locale";
+import { UserCircle2, Trash2, Check, CheckCheck } from "lucide-react";
 
 interface Props {
   chatId: string;
@@ -91,22 +92,25 @@ export default function ChatWindow({ chatId }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-bg-soft">
+    <div className="flex flex-col h-full bg-[#050505] relative overflow-hidden">
+      {/* Patrón de fondo (Grid) premium */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-50" />
+      
       {/* Header */}
-      <div className="p-4 border-b border-gray-medium/20 bg-bg-dark flex items-center justify-between">
+      <div className="p-4 border-b border-white/5 bg-bg-soft/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-medium/20 flex items-center justify-center">
-            <UserCircle2 className="w-6 h-6 text-gray-medium" />
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-medium/10 to-gray-medium/30 flex items-center justify-center border border-white/5 shadow-inner">
+            <UserCircle2 className="w-6 h-6 text-gray-light" />
           </div>
           <div>
-            <h3 className="text-white font-medium">{chatName}</h3>
-            {chatName !== chatId && <p className="text-xs text-gray-medium">{chatId}</p>}
+            <h3 className="text-white font-semibold text-lg tracking-tight leading-tight">{chatName}</h3>
+            {chatName !== chatId && <p className="text-xs text-gray-medium font-medium">{chatId}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={handleDeleteChat}
-            className="p-1.5 text-gray-medium hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+            className="p-2 text-gray-medium hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-200"
             title="Eliminar Conversación"
           >
             <Trash2 className="w-5 h-5" />
@@ -117,37 +121,64 @@ export default function ChatWindow({ chatId }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => {
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        {messages.map((msg, index) => {
           const isAgent = msg.sender === "agent";
+          
+          // Lógica para el separador de fecha
+          const msgDate = msg.created_at ? msg.created_at.toDate() : new Date();
+          const prevMsg = index > 0 ? messages[index - 1] : null;
+          const prevDate = prevMsg?.created_at ? prevMsg.created_at.toDate() : null;
+          
+          const showDateDivider = !prevDate || msgDate.toDateString() !== prevDate.toDateString();
+
           return (
-            <div
-              key={msg.id}
-              className={`flex ${isAgent ? "justify-end" : "justify-start"}`}
-            >
+            <div key={msg.id} className="space-y-4">
+              {showDateDivider && (
+                <div className="flex justify-center my-6">
+                  <span className="text-[10px] font-bold text-gray-medium/80 bg-black/40 backdrop-blur-sm border border-white/5 px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                    {format(msgDate, "d 'de' MMMM", { locale: es })}
+                  </span>
+                </div>
+              )}
               <div
-                className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2 ${
-                  isAgent
-                    ? "bg-primary text-white rounded-br-sm"
-                    : "bg-bg-dark border border-gray-medium/20 text-white rounded-bl-sm"
-                }`}
+                className={`flex ${isAgent ? "justify-end" : "justify-start"} group relative z-10`}
               >
-                {msg.type === "audio" ? (
-                  <audio controls src={msg.message} className="max-w-full h-10 mt-1 mb-1" />
-                ) : (
-                  <p className="text-sm whitespace-pre-wrap break-words">
-                    {renderMessageWithLinks(msg.message)}
-                  </p>
-                )}
-                {msg.created_at && (
-                  <p
-                    className={`text-[10px] mt-1 text-right ${
-                      isAgent ? "text-white/80" : "text-gray-medium"
-                    }`}
-                  >
-                    {format(msg.created_at.toDate(), "HH:mm")}
-                  </p>
-                )}
+                <div
+                  className={`max-w-[85%] sm:max-w-[70%] px-5 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
+                    isAgent
+                      ? "bg-gradient-to-b from-primary to-[#B71C1C] text-white rounded-2xl rounded-tr-sm ring-1 ring-black/20 shadow-primary/10"
+                      : "bg-[#111111] border border-white/10 text-[#f4f4f5] rounded-2xl rounded-tl-sm shadow-black/50"
+                  }`}
+                >
+                  {msg.type === "audio" ? (
+                    <audio controls src={msg.message} className="max-w-full h-10 mt-1 mb-1" />
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {renderMessageWithLinks(msg.message)}
+                    </p>
+                  )}
+                  {msg.created_at && (
+                    <p
+                      className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 ${
+                        isAgent ? "text-white/80" : "text-gray-medium"
+                      }`}
+                    >
+                      {format(msgDate, "HH:mm")}
+                      {isAgent && (
+                        <span className="ml-0.5">
+                          {msg.status === 'read' ? (
+                            <CheckCheck className="w-[14px] h-[14px] text-[#34B7F1]" />
+                          ) : msg.status === 'delivered' ? (
+                            <CheckCheck className="w-[14px] h-[14px] text-white/70" />
+                          ) : (
+                            <Check className="w-[14px] h-[14px] text-white/70" />
+                          )}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           );

@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       phone_number,
       message,
       sender: "agent",
+      status: "delivered",
       created_at: timestamp,
     });
 

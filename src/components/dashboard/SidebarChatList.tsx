@@ -37,16 +37,16 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
   );
 
   return (
-    <div className="flex flex-col h-full bg-bg-soft">
-      <div className="p-4 border-b border-gray-medium/20">
-        <h2 className="text-xl font-bold text-white mb-4">Conversaciones</h2>
-        <div className="relative">
+    <div className="flex flex-col h-full bg-[#0a0a0a]/90 backdrop-blur-xl border-r border-white/10 z-10 relative shadow-xl">
+      <div className="p-5 border-b border-white/5">
+        <h2 className="text-xl font-bold text-white mb-4 tracking-tight">Conversaciones</h2>
+        <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-medium" />
+            <Search className="h-4 w-4 text-gray-medium group-focus-within:text-primary transition-colors" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-medium/30 rounded-lg bg-bg-dark text-white placeholder-gray-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm transition-colors"
+            className="block w-full pl-10 pr-3 py-2.5 border border-white/10 rounded-xl bg-[#000000] text-white placeholder-gray-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 sm:text-sm transition-all duration-300 shadow-inner"
             placeholder="Buscar chats..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -54,17 +54,17 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
         {filteredChats.map((chat) => {
           const isSelected = chat.phone_number === selectedChatId;
           return (
             <button
               key={chat.phone_number}
               onClick={() => onSelectChat(chat.phone_number)}
-              className={`w-full text-left p-4 border-b border-gray-medium/10 flex items-start gap-3 transition-colors ${
+              className={`w-full text-left p-3 rounded-xl flex items-start gap-3 transition-all duration-200 border ${
                 isSelected
-                  ? "bg-primary/20 border-l-4 border-l-primary"
-                  : "hover:bg-bg-dark border-l-4 border-l-transparent"
+                  ? "bg-[#111111] border-white/20 shadow-lg shadow-black"
+                  : "bg-transparent border-transparent hover:bg-[#111111]/50 hover:border-white/10"
               }`}
             >
               <div className="w-10 h-10 rounded-full bg-gray-medium/20 flex items-center justify-center flex-shrink-0">

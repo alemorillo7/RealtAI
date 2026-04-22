@@ -14,6 +14,7 @@ export interface Message {
   message: string;
   created_at: FirebaseFirestore.Timestamp | any;
   type?: 'text' | 'audio' | string;
+  status?: 'sent' | 'delivered' | 'read';
 }
 
 export interface Contact {

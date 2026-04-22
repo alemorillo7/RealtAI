@@ -1,27 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #121212;
-  --foreground: #ffffff;
+  --background: #000000; 
+  --foreground: #ededed;
 }
 
 @theme inline {
-  --color-primary: #C62828;
-  --color-primary-dark: #8E0000;
+  --color-primary: #E53935; /* Un rojo corporativo más vivo */
+  --color-primary-dark: #B71C1C;
   --color-accent: #FF7043;
-  --color-bg-dark: #121212;
-  --color-bg-soft: #1E1E1E;
-  --color-gray-light: #F5F5F5;
-  --color-gray-medium: #9E9E9E;
+  --color-bg-dark: #000000;
+  --color-bg-soft: #0a0a0a; /* Gris súper oscuro elegante */
+  --color-gray-light: #f4f4f5; 
+  --color-gray-medium: #888888; /* Contraste perfecto para textos secundarios */
   
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Scrollbar personalizado estético */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(158, 158, 158, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(158, 158, 158, 0.6);
 }
