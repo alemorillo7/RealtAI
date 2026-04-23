@@ -101,11 +101,11 @@ export default function ContactsPage() {
   const currentContacts = filteredContacts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="flex flex-col h-full bg-[#050505]">
-      <div className="p-6 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md flex justify-between items-center z-10">
+    <div className="flex flex-col h-full bg-background">
+      <div className="p-6 border-b border-border bg-card/80 backdrop-blur-md flex justify-between items-center z-10">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Contactos</h1>
-          <p className="text-gray-medium text-sm mt-1">Gestión de base de clientes</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Contactos</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gestión de base de clientes</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -119,44 +119,44 @@ export default function ContactsPage() {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="relative mb-6 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-medium" />
+            <Search className="h-5 w-5 text-muted-foreground" />
           </div>
           <input
             type="text"
             placeholder="Buscar por nombre, teléfono o email..."
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300 shadow-inner"
+            className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300 shadow-inner"
           />
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/5 shadow-xl overflow-hidden">
+        <div className="bg-card rounded-xl border border-border shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-light">
-              <thead className="bg-[#111111] border-b border-white/5">
+            <table className="w-full text-left text-sm text-foreground">
+              <thead className="bg-muted/50 border-b border-border">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-white">Nombre</th>
-                  <th className="px-6 py-4 font-semibold text-white">Teléfono</th>
-                  <th className="px-6 py-4 font-semibold text-white">Email</th>
-                  <th className="px-6 py-4 font-semibold text-white text-right">Acciones</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Nombre</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Teléfono</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Email</th>
+                  <th className="px-6 py-4 font-semibold text-foreground text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {currentContacts.map((contact) => (
-                  <tr key={contact.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4 font-medium text-white">{contact.name}</td>
+                  <tr key={contact.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-foreground">{contact.name}</td>
                     <td className="px-6 py-4">{contact.phone_number}</td>
-                    <td className="px-6 py-4 text-gray-medium">{contact.email || '-'}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{contact.email || '-'}</td>
                     <td className="px-6 py-4 flex justify-end gap-3">
                       <button
                         onClick={() => handleOpenEdit(contact)}
-                        className="p-1.5 text-gray-medium hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(contact.id)}
-                        className="p-1.5 text-gray-medium hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -165,7 +165,7 @@ export default function ContactsPage() {
                 ))}
                 {filteredContacts.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-gray-medium">
+                    <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
                       No se encontraron contactos.
                     </td>
                   </tr>
@@ -176,22 +176,22 @@ export default function ContactsPage() {
           
           {/* Paginación */}
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between bg-[#0a0a0a]">
-              <span className="text-sm text-gray-medium">
+            <div className="px-6 py-4 border-t border-border flex items-center justify-between bg-card">
+              <span className="text-sm text-muted-foreground">
                 Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, filteredContacts.length)} de {filteredContacts.length}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1.5 rounded-lg border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/5 transition-colors text-sm"
+                  className="px-3 py-1.5 rounded-lg border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors text-sm"
                 >
                   Anterior
                 </button>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1.5 rounded-lg border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/5 transition-colors text-sm"
+                  className="px-3 py-1.5 rounded-lg border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors text-sm"
                 >
                   Siguiente
                 </button>
@@ -203,61 +203,61 @@ export default function ContactsPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-bg-soft rounded-2xl p-6 w-full max-w-md border border-gray-medium/20 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md border border-border shadow-2xl animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold text-foreground mb-4">
               {editingContact ? "Editar Contacto" : "Nuevo Contacto"}
             </h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Nombre</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
                 <input
                   required
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-bg-dark border border-gray-medium/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Teléfono</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Teléfono</label>
                 <input
                   required
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-bg-dark border border-gray-medium/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Email</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-bg-dark border border-gray-medium/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Notas</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Notas</label>
                 <textarea
                   rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-bg-dark border border-gray-medium/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
               <div className="flex gap-3 justify-end mt-6">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 text-gray-light hover:text-white transition-colors"
+                  className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors"
+                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors shadow-md shadow-primary/20"
                 >
                   Guardar
                 </button>

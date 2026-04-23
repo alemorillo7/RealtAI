@@ -37,13 +37,13 @@ export default function ChatInput({ chatId }: Props) {
 
   return (
     <div className="p-4 md:px-6 md:pb-6 bg-transparent">
-      <form onSubmit={handleSend} className="flex gap-3 bg-bg-soft/60 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-lg shadow-black/20 focus-within:border-primary/50 focus-within:shadow-primary/10 transition-all duration-300">
+      <form onSubmit={handleSend} className="flex gap-3 bg-card/60 backdrop-blur-xl p-2 rounded-2xl border border-border shadow-sm focus-within:border-primary/50 focus-within:shadow-primary/10 transition-all duration-300">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Escribe un mensaje para enviar..."
-          className="flex-1 bg-transparent border-none px-4 py-2 text-white placeholder-gray-medium focus:outline-none focus:ring-0 sm:text-sm"
+          className="flex-1 bg-transparent border-none px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-0 sm:text-sm"
         />
         <button
           type="submit"

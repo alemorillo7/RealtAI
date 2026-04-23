@@ -47,7 +47,7 @@ export default function BotToggle({ chatId }: Props) {
       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
         isBotActive
           ? "bg-primary text-white border-primary-dark"
-          : "bg-transparent text-gray-medium border-gray-medium/30 hover:border-gray-medium hover:text-white"
+          : "bg-transparent text-muted-foreground border-border hover:border-muted-foreground hover:text-foreground"
       }`}
     >
       <Bot className="w-5 h-5" />

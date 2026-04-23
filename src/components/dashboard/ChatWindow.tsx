@@ -92,25 +92,25 @@ export default function ChatWindow({ chatId }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#050505] relative overflow-hidden">
+    <div className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Patrón de fondo (Grid) premium */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-50" />
+      <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-[0.03] dark:opacity-[0.02]" />
       
       {/* Header */}
-      <div className="p-4 border-b border-white/5 bg-bg-soft/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10 shadow-sm">
+      <div className="p-4 border-b border-border bg-card/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-medium/10 to-gray-medium/30 flex items-center justify-center border border-white/5 shadow-inner">
-            <UserCircle2 className="w-6 h-6 text-gray-light" />
+          <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center border border-border shadow-inner">
+            <UserCircle2 className="w-6 h-6 text-foreground" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg tracking-tight leading-tight">{chatName}</h3>
-            {chatName !== chatId && <p className="text-xs text-gray-medium font-medium">{chatId}</p>}
+            <h3 className="text-foreground font-semibold text-lg tracking-tight leading-tight">{chatName}</h3>
+            {chatName !== chatId && <p className="text-xs text-muted-foreground font-medium">{chatId}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={handleDeleteChat}
-            className="p-2 text-gray-medium hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-200"
+            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-200"
             title="Eliminar Conversación"
           >
             <Trash2 className="w-5 h-5" />
@@ -136,7 +136,7 @@ export default function ChatWindow({ chatId }: Props) {
             <div key={msg.id} className="space-y-4">
               {showDateDivider && (
                 <div className="flex justify-center my-6">
-                  <span className="text-[10px] font-bold text-gray-medium/80 bg-black/40 backdrop-blur-sm border border-white/5 px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                  <span className="text-[10px] font-bold text-muted-foreground/80 bg-background/40 backdrop-blur-sm border border-border px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                     {format(msgDate, "d 'de' MMMM", { locale: es })}
                   </span>
                 </div>
@@ -147,8 +147,8 @@ export default function ChatWindow({ chatId }: Props) {
                 <div
                   className={`max-w-[85%] sm:max-w-[70%] px-5 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
                     isAgent
-                      ? "bg-gradient-to-b from-primary to-[#B71C1C] text-white rounded-2xl rounded-tr-sm ring-1 ring-black/20 shadow-primary/10"
-                      : "bg-[#111111] border border-white/10 text-[#f4f4f5] rounded-2xl rounded-tl-sm shadow-black/50"
+                      ? "bg-gradient-to-b from-primary to-[#B71C1C] text-white rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
+                      : "bg-card border border-border text-foreground rounded-2xl rounded-tl-sm shadow-sm"
                   }`}
                 >
                   {msg.type === "audio" ? (
@@ -161,7 +161,7 @@ export default function ChatWindow({ chatId }: Props) {
                   {msg.created_at && (
                     <p
                       className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 ${
-                        isAgent ? "text-white/80" : "text-gray-medium"
+                        isAgent ? "text-white/80" : "text-muted-foreground"
                       }`}
                     >
                       {format(msgDate, "HH:mm")}

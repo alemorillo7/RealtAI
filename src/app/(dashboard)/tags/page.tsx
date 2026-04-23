@@ -68,11 +68,11 @@ export default function TagsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-bg-dark">
-      <div className="p-6 border-b border-gray-medium/20 bg-bg-soft flex justify-between items-center">
+    <div className="flex flex-col h-full bg-background">
+      <div className="p-6 border-b border-border bg-card flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">Etiquetas</h1>
-          <p className="text-gray-medium text-sm mt-1">Clasifica y organiza tus conversaciones</p>
+          <h1 className="text-2xl font-bold text-foreground">Etiquetas</h1>
+          <p className="text-muted-foreground text-sm mt-1">Clasifica y organiza tus conversaciones</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -88,25 +88,25 @@ export default function TagsPage() {
           {tags.map((tag) => (
             <div
               key={tag.id}
-              className="bg-bg-soft border border-gray-medium/20 rounded-xl p-4 flex flex-col justify-between"
+              className="bg-card border border-border rounded-xl p-4 flex flex-col justify-between shadow-sm"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-4 h-4 rounded-full flex-shrink-0"
                   style={{ backgroundColor: tag.color }}
                 />
-                <h3 className="text-white font-medium truncate">{tag.name}</h3>
+                <h3 className="text-foreground font-medium truncate">{tag.name}</h3>
               </div>
-              <div className="flex justify-end gap-3 pt-3 border-t border-gray-medium/10 mt-auto">
+              <div className="flex justify-end gap-3 pt-3 border-t border-border mt-auto">
                 <button
                   onClick={() => handleOpenEdit(tag)}
-                  className="text-gray-medium hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(tag.id)}
-                  className="text-gray-medium hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -114,7 +114,7 @@ export default function TagsPage() {
             </div>
           ))}
           {tags.length === 0 && (
-            <div className="col-span-full py-8 text-center text-gray-medium bg-bg-soft rounded-xl border border-gray-medium/20">
+            <div className="col-span-full py-8 text-center text-muted-foreground bg-card rounded-xl border border-gray-medium/20">
               No se encontraron etiquetas. Crea una nueva para empezar.
             </div>
           )}
@@ -123,24 +123,24 @@ export default function TagsPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-bg-soft rounded-2xl p-6 w-full max-w-sm border border-gray-medium/20 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm border border-border shadow-2xl animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold text-foreground mb-4">
               {editingTag ? "Editar Etiqueta" : "Nueva Etiqueta"}
             </h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Nombre de la Etiqueta</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Nombre de la Etiqueta</label>
                 <input
                   required
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-bg-dark border border-gray-medium/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-light mb-1">Color</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Color</label>
                 <div className="flex items-center gap-3">
                   <input
                     required
@@ -149,14 +149,14 @@ export default function TagsPage() {
                     onChange={(e) => setColor(e.target.value)}
                     className="h-10 w-10 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                   />
-                  <span className="text-gray-medium text-sm">{color}</span>
+                  <span className="text-muted-foreground text-sm">{color}</span>
                 </div>
               </div>
               <div className="flex gap-3 justify-end mt-6">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 text-gray-light hover:text-white transition-colors"
+                  className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cancelar
                 </button>

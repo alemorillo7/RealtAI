@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 
 export default function DashboardLayout({
   children,
@@ -26,15 +27,15 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-bg-dark overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-bg-soft/40 via-bg-dark to-bg-dark">
+      <div className="flex h-screen bg-background text-foreground overflow-hidden">
         {/* Main Side Nav */}
-        <div className="w-20 lg:w-64 bg-bg-soft/50 backdrop-blur-md border-r border-white/5 flex flex-col justify-between hidden md:flex shadow-[4px_0_24px_-4px_rgba(0,0,0,0.5)] z-20">
+        <div className="w-20 lg:w-64 bg-card/50 backdrop-blur-md border-r border-border flex flex-col justify-between hidden md:flex z-20">
           <div className="p-4">
             <div className="flex items-center gap-3 px-2 mb-8 mt-2 group cursor-pointer">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-300 group-hover:scale-105">
                 <MessageSquare className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-white font-bold text-lg hidden lg:block tracking-tight">
+              <h2 className="text-foreground font-bold text-lg hidden lg:block tracking-tight">
                 Ramayo <span className="text-primary font-medium">CRM</span>
               </h2>
             </div>
@@ -48,7 +49,7 @@ export default function DashboardLayout({
                     href={item.href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${isActive
                         ? "bg-primary/10 text-primary font-semibold shadow-sm border border-primary/20"
-                        : "text-gray-medium hover:bg-white/5 hover:text-white border border-transparent"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground border border-transparent"
                       }`}
                   >
                     <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-primary" : ""}`} />
@@ -61,10 +62,11 @@ export default function DashboardLayout({
             </nav>
           </div>
 
-          <div className="p-4">
+          <div className="p-4 space-y-2">
+            <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-3 w-full rounded-lg text-gray-medium hover:bg-gray-medium/10 hover:text-white transition-colors"
+              className="flex items-center gap-3 px-3 py-3 w-full rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
               <span className="font-medium hidden lg:block">Cerrar Sesión</span>
@@ -73,7 +75,10 @@ export default function DashboardLayout({
         </div>
 
         {/* Dynamic Content */}
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-hidden bg-background relative">
+          <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-[0.03] dark:opacity-[0.02]" />
+          <div className="relative h-full">{children}</div>
+        </main>
       </div>
     </ProtectedRoute>
   );

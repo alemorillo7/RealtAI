@@ -36,9 +36,9 @@ export default function TagSelector({ chatId }: { chatId: string }) {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-medium/30 hover:bg-gray-medium/10 text-white text-sm transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-foreground text-sm transition-colors"
       >
-        <TagIcon className="w-4 h-4 text-gray-medium" />
+        <TagIcon className="w-4 h-4 text-muted-foreground" />
         <span className="hidden sm:inline">Etiquetas</span>
       </button>
 
@@ -48,8 +48,8 @@ export default function TagSelector({ chatId }: { chatId: string }) {
       )}
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-56 bg-bg-dark border border-gray-medium/20 rounded-xl shadow-2xl p-2 z-50">
-          <h4 className="text-xs font-semibold text-gray-medium mb-2 px-2 uppercase tracking-wider">Asignar Etiquetas</h4>
+        <div className="absolute top-full right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+          <h4 className="text-xs font-semibold text-muted-foreground mb-2 px-2 uppercase tracking-wider">Asignar Etiquetas</h4>
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {availableTags.map(tag => {
               const isSelected = chatTags.includes(tag.name);
@@ -57,18 +57,18 @@ export default function TagSelector({ chatId }: { chatId: string }) {
                 <button
                   key={tag.id}
                   onClick={() => toggleTag(tag.name)}
-                  className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between hover:bg-bg-soft transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tag.color }} />
-                    <span className={isSelected ? "text-white font-medium" : "text-gray-light"}>{tag.name}</span>
+                    <span className={isSelected ? "text-foreground font-semibold" : "text-foreground/80"}>{tag.name}</span>
                   </div>
                   {isSelected && <Check className="w-4 h-4 text-primary" />}
                 </button>
               );
             })}
             {availableTags.length === 0 && (
-              <p className="text-xs text-gray-medium px-2 py-1">No hay etiquetas creadas.</p>
+              <p className="text-xs text-muted-foreground px-2 py-1">No hay etiquetas creadas.</p>
             )}
           </div>
         </div>
