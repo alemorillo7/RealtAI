@@ -2,53 +2,38 @@ import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   try {
-    let serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
     
-    if (serviceAccountStr) {
-      // Clean the string from potential surrounding quotes or spaces added by Vercel/env imports
-      serviceAccountStr = serviceAccountStr.trim();
-      if ((serviceAccountStr.startsWith("'") && serviceAccountStr.endsWith("'")) || 
-          (serviceAccountStr.startsWith('"') && serviceAccountStr.endsWith('"'))) {
-        serviceAccountStr = serviceAccountStr.slice(1, -1);
-      }
-
-      let serviceAccount;
-      
+    if (privateKey && clientEmail && projectId) {
       try {
-        // 1. Try to see if it's Base64 encoded
-        if (!serviceAccountStr.startsWith('{')) {
-          const decoded = Buffer.from(serviceAccountStr, 'base64').toString('utf-8').trim();
-          serviceAccount = JSON.parse(decoded);
-        } else {
-          // 2. Normal JSON string
-          serviceAccount = JSON.parse(serviceAccountStr);
-        }
-
-        // Fix for Vercel environment variables escaping \n
-        if (serviceAccount.private_key) {
-          serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-        }
-
         admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
+          credential: admin.credential.cert({
+            projectId,
+            clientEmail,
+            privateKey: privateKey.replace(/\\n/g, '\n'),
+          }),
           storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
         });
-      } catch (parseError: any) {
-        console.error('Error parsing service account key:', parseError.message);
-        console.error('String length:', serviceAccountStr.length);
-        console.error('Starts with:', serviceAccountStr.substring(0, 10));
-        console.error('Ends with:', serviceAccountStr.substring(serviceAccountStr.length - 10));
+      } catch (error) {
+        console.error('Firebase admin initialization error', error);
       }
     } else {
-      admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-      });
+      // Fallback to application default credentials
+      if (!admin.apps.length) {
+        admin.initializeApp({
+          credential: admin.credential.applicationDefault(),
+          storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        });
+      }
     }
   } catch (error) {
-    console.error('Firebase admin initialization error', error);
+    console.error('Main Firebase admin initialization error', error);
   }
 }
+}
+
 
 export const adminDb = admin.firestore();
 export const adminAuth = admin.auth();
