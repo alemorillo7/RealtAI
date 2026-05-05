@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import SidebarChatList from "@/components/dashboard/SidebarChatList";
 import ChatWindow from "@/components/dashboard/ChatWindow";
 
 export default function DashboardPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/agents");
+  }, [router]);
 
   return (
     <div className="flex h-full w-full bg-background">

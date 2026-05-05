@@ -2,47 +2,57 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #0A1A2F;
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #0A1A2F;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #E53935;
-  --primary-foreground: #fafafa;
+  --popover-foreground: #0A1A2F;
+  --primary: #FFD047;
+  --primary-foreground: #0A1A2F;
   --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
+  --secondary-foreground: #0B1539;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
+  --muted-foreground: #2F3033;
+  --accent: #2ED39F;
+  --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #E53935;
+  --ring: #FFD047;
   --radius: 0.5rem;
+
+  /* Brand Colors */
+  --brand-navy: #0A1A2F;
+  --brand-navy-light: #0B1539;
+  --brand-gold: #FFD047;
+  --brand-gold-dark: #FFC533;
+  --brand-emerald: #2ED39F;
+  --brand-emerald-dark: #00C47A;
+  --brand-charcoal: #1A1A1D;
+  --brand-gray: #2F3033;
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ededed;
-  --card: #0a0a0a;
-  --card-foreground: #ededed;
-  --popover: #0a0a0a;
-  --popover-foreground: #ededed;
-  --primary: #E53935;
-  --primary-foreground: #fafafa;
-  --secondary: #18181b;
-  --secondary-foreground: #fafafa;
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --accent: #18181b;
-  --accent-foreground: #fafafa;
+  --background: #0A1A2F;
+  --foreground: #ffffff;
+  --card: #0B1539;
+  --card-foreground: #ffffff;
+  --popover: #0B1539;
+  --popover-foreground: #ffffff;
+  --primary: #FFD047;
+  --primary-foreground: #0A1A2F;
+  --secondary: #1A1A1D;
+  --secondary-foreground: #ffffff;
+  --muted: #2F3033;
+  --muted-foreground: #A0AEC0;
+  --accent: #2ED39F;
+  --accent-foreground: #0A1A2F;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #E53935;
+  --border: #1A1A1D;
+  --input: #1A1A1D;
+  --ring: #FFD047;
 }
 
 @theme inline {
@@ -66,16 +76,34 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   
-  --color-bg-soft: var(--card);
-  --color-gray-medium: var(--muted-foreground);
-  
+  /* Brand color aliases */
+  --color-navy: var(--brand-navy);
+  --color-navy-light: var(--brand-navy-light);
+  --color-gold: var(--brand-gold);
+  --color-gold-dark: var(--brand-gold-dark);
+  --color-emerald: var(--brand-emerald);
+  --color-emerald-dark: var(--brand-emerald-dark);
+  --color-charcoal: var(--brand-charcoal);
+  --color-gray-brand: var(--brand-gray);
+
+  --font-inter: var(--font-inter);
+  --font-montserrat: var(--font-montserrat);
+  --font-space: var(--font-space-grotesk);
+
   --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+  --font-mono: var(--font-space);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat);
+  font-weight: 600;
 }
 
 /* Scrollbar personalizado estético */
@@ -89,10 +117,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(158, 158, 158, 0.3);
+  background-color: var(--brand-gold);
   border-radius: 10px;
+  opacity: 0.5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(158, 158, 158, 0.6);
+  background-color: var(--brand-gold-dark);
 }

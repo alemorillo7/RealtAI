@@ -31,3 +31,20 @@ export interface Tag {
   name: string;
   color: string;
 }
+
+export interface Lead {
+  id: string;
+  name: string;
+  phone_number: string;
+  status: string;
+  description?: string;
+  created_at: FirebaseFirestore.Timestamp | any;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  category: 'propiedades' | 'ventas' | 'soporte';
+  status: 'online' | 'offline';
+  last_active: FirebaseFirestore.Timestamp | any;
+}

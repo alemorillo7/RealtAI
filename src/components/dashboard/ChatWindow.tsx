@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { collection, query, where, orderBy, onSnapshot, doc } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Message } from "@/types";
+import { Message, Chat, Tag } from "@/types";
 import BotToggle from "./BotToggle";
 import TagSelector from "./TagSelector";
 import ChatInput from "./ChatInput";
@@ -17,7 +17,10 @@ interface Props {
 
 export default function ChatWindow({ chatId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [chatInfo, setChatInfo] = useState<Chat | null>(null);
   const [chatName, setChatName] = useState<string>(chatId);
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [isAddingTag, setIsAddingTag] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,7 +64,7 @@ export default function ChatWindow({ chatId }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone_number: chatId })
         });
-        window.location.href = '/dashboard';
+        window.location.href = '/agents';
       } catch (e) {
         console.error(e);
         alert("Error al eliminar el chat");
@@ -147,7 +150,7 @@ export default function ChatWindow({ chatId }: Props) {
                 <div
                   className={`max-w-[85%] sm:max-w-[70%] px-5 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
                     isAgent
-                      ? "bg-gradient-to-b from-primary to-[#B71C1C] text-white rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
+                      ? "bg-gradient-to-b from-primary to-gold-dark text-primary-foreground rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
                       : "bg-card border border-border text-foreground rounded-2xl rounded-tl-sm shadow-sm"
                   }`}
                 >

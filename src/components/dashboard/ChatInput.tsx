@@ -48,7 +48,7 @@ export default function ChatInput({ chatId }: Props) {
         <button
           type="submit"
           disabled={loading || !message.trim()}
-          className="bg-primary hover:bg-primary-dark text-white p-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm active:scale-95"
+          className="bg-primary hover:opacity-90 text-primary-foreground p-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm active:scale-95"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

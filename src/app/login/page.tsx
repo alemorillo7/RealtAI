@@ -32,13 +32,17 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-card rounded-2xl shadow-2xl p-8 border border-border">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Building2 className="w-8 h-8 text-primary" />
+          <div className="w-24 h-24 rounded-2xl overflow-hidden border border-border shadow-xl bg-white mb-6">
+            <img 
+              src="/realtai-logo.jpeg" 
+              alt="RealtAI Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
-          <h1 className="text-2xl font-bold text-foreground text-center">
-            CRM Inmobiliario
+          <h1 className="text-3xl font-display font-bold text-foreground text-center">
+            RealtAI <span className="text-primary">CRM</span>
           </h1>
-          <p className="text-muted-foreground mt-2 text-center text-sm">
+          <p className="text-muted-foreground mt-3 text-center text-sm">
             Ingresa con tus credenciales de operador
           </p>
         </div>
@@ -63,7 +67,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-                placeholder="operador@empresa.com"
+                placeholder="admin@realtai.com"
                 required
               />
             </div>
@@ -91,7 +95,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-dark focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-dark focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

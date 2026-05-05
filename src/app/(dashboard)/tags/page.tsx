@@ -13,7 +13,7 @@ export default function TagsPage() {
 
   // Form states
   const [name, setName] = useState("");
-  const [color, setColor] = useState("#C62828");
+  const [color, setColor] = useState("#FFD047");
 
   useEffect(() => {
     const q = query(collection(db, "tags"));
@@ -76,7 +76,7 @@ export default function TagsPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-bold shadow-lg shadow-primary/20"
         >
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">Nueva Etiqueta</span>
@@ -160,9 +160,9 @@ export default function TagsPage() {
                 >
                   Cancelar
                 </button>
-                <button
+                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors"
+                  className="px-6 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all shadow-md"
                 >
                   Guardar
                 </button>
