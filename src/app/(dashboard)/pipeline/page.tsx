@@ -22,7 +22,7 @@ import { Lead } from "@/types";
 
 export default function PipelinePage() {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [columns, setColumns] = useState<{id: string, label: string, color: string}[]>([]);
+  const [columns, setColumns] = useState<{id: string, label: string, color: string, fireId?: string, order?: number}[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   
   // Modal State
@@ -407,7 +407,7 @@ export default function PipelinePage() {
           
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
             {columns.map((col, index) => (
-              <div key={col.fireId} className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border group">
+              <div key={col.fireId || col.id} className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border group">
                 <GripVertical className="w-4 h-4 text-muted-foreground/30 cursor-grab" />
                 <div className="flex-1 space-y-1">
                   <input 
