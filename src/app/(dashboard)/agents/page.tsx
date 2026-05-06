@@ -35,8 +35,6 @@ export default function AgentsPage() {
 
   const mainTabs = [
     { id: "agentes", label: "Agentes", icon: MessageSquare },
-    { id: "outbound", label: "Outbound", icon: TrendingUp },
-    { id: "inbound", label: "Inbound", icon: Info },
   ];
 
   const subTabs = [
