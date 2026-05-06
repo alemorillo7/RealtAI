@@ -155,9 +155,20 @@ export default function ChatWindow({ chatId }: Props) {
                   }`}
                 >
                   {msg.type === "audio" ? (
-                    <audio controls src={msg.message} className="max-w-full h-10 mt-1 mb-1" />
+                    <div className="bg-muted/20 p-2 rounded-xl mt-1">
+                      <audio controls src={msg.message} className="max-w-full h-8" />
+                    </div>
+                  ) : msg.type === "image" ? (
+                    <div className="mt-1 mb-1 max-w-[250px]">
+                      <img 
+                        src={msg.message} 
+                        alt="Imagen de chat" 
+                        className="w-full h-auto rounded-xl border border-border/50 shadow-sm cursor-zoom-in hover:opacity-95 transition-all active:scale-[0.98]"
+                        onClick={() => window.open(msg.message, '_blank')}
+                      />
+                    </div>
                   ) : (
-                    <p className="text-sm whitespace-pre-wrap break-words">
+                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
                       {renderMessageWithLinks(msg.message)}
                     </p>
                   )}

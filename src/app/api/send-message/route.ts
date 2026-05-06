@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 
-const N8N_WEBHOOK_URL = "https://automation8n.fluxia.site/webhook/215cda7d-ad06-40f8-babd-726ad0ab948b";
+const N8N_WEBHOOK_URL = "https://n8n.realtaigrowth.cloud/webhook/c532c166-dfcb-450a-8481-a155816c7248";
 
 export async function POST(req: Request) {
   try {
