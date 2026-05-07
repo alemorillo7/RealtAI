@@ -1,7 +1,7 @@
 "use client";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { MessageSquare, Users, Tags, LogOut, Bot, Kanban, Menu, X } from "lucide-react";
+import { MessageSquare, Users, Tags, LogOut, Bot, Kanban, Menu, X, Calendar } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,7 @@ export default function DashboardLayout({
   const navItems = [
     { icon: Bot, label: "Agentes", href: "/agents" },
     { icon: Kanban, label: "Pipeline", href: "/pipeline" },
+    { icon: Calendar, label: "Calendario", href: "/calendar" },
     { icon: Users, label: "Contactos", href: "/contacts" },
     { icon: Tags, label: "Etiquetas", href: "/tags" },
   ];
@@ -43,7 +44,7 @@ export default function DashboardLayout({
               />
             </div>
             <h2 className="text-foreground font-display font-bold text-base tracking-tight">
-              RealtAI <span className="text-primary">CRM</span>
+              RealtAI <span className="text-primary">OS</span>
             </h2>
           </div>
           <button 
@@ -122,7 +123,7 @@ export default function DashboardLayout({
                 />
               </div>
               <h2 className="text-foreground font-display font-bold text-lg hidden lg:block tracking-tight">
-                RealtAI <span className="text-primary font-medium">CRM</span>
+                RealtAI <span className="text-primary font-medium">OS</span>
               </h2>
             </div>
 

@@ -40,7 +40,7 @@ export default function LoginPage() {
             />
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground text-center">
-            RealtAI <span className="text-primary">CRM</span>
+            RealtAI <span className="text-primary">OS</span>
           </h1>
           <p className="text-muted-foreground mt-3 text-center text-sm">
             Ingresa con tus credenciales de operador

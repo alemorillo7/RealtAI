@@ -21,8 +21,11 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "RealtAI CRM",
-  description: "Corporate Messaging CRM",
+  title: "RealtAI OS",
+  description: "Corporate Operating System",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
