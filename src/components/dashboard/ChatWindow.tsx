@@ -8,6 +8,7 @@ import BotToggle from "./BotToggle";
 import TagSelector from "./TagSelector";
 import ChatInput from "./ChatInput";
 import { format } from "date-fns";
+import { formatInMadrid } from "@/lib/dateUtils";
 import { es } from "date-fns/locale";
 import { UserCircle2, Trash2, Check, CheckCheck } from "lucide-react";
 
@@ -140,7 +141,7 @@ export default function ChatWindow({ chatId }: Props) {
               {showDateDivider && (
                 <div className="flex justify-center my-6">
                   <span className="text-[10px] font-bold text-muted-foreground/80 bg-background/40 backdrop-blur-sm border border-border px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
-                    {format(msgDate, "d 'de' MMMM", { locale: es })}
+                    {formatInMadrid(msgDate, "d 'de' MMMM")}
                   </span>
                 </div>
               )}
@@ -178,7 +179,7 @@ export default function ChatWindow({ chatId }: Props) {
                         isAgent ? "text-white/80" : "text-muted-foreground"
                       }`}
                     >
-                      {format(msgDate, "HH:mm")}
+                      {formatInMadrid(msgDate, "HH:mm")}
                       {isAgent && (
                         <span className="ml-0.5">
                           {msg.status === 'read' ? (

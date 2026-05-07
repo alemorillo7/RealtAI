@@ -27,6 +27,7 @@ import {
   parseISO,
   isToday
 } from "date-fns";
+import { formatInMadrid, getTodayInMadrid } from "@/lib/dateUtils";
 import { es } from "date-fns/locale";
 import { collection, query, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -49,7 +50,7 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [newEvent, setNewEvent] = useState({
     title: "",
-    date: format(new Date(), "yyyy-MM-dd"),
+    date: getTodayInMadrid(),
     time: "12:00",
     location: "",
     description: "",
@@ -57,10 +58,13 @@ export default function CalendarPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Fetch Events
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [businessHours, setBusinessHours] = useState({ start: "09:00", end: "18:00" });
+
+  // Fetch Events and Config
   useEffect(() => {
     const q = query(collection(db, "events"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubEvents = onSnapshot(q, (snapshot) => {
       const data: CalendarEvent[] = [];
       snapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() } as CalendarEvent);
@@ -68,8 +72,36 @@ export default function CalendarPage() {
       setEvents(data);
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    const unsubConfig = onSnapshot(doc(db, "calendar_configs", "settings"), (doc) => {
+      if (doc.exists()) {
+        setBusinessHours(doc.data().businessHours);
+      }
+    });
+
+    return () => {
+      unsubEvents();
+      unsubConfig();
+    };
   }, []);
+
+  const handleSaveConfig = async () => {
+    try {
+      await updateDoc(doc(db, "calendar_configs", "settings"), {
+        businessHours,
+        timezone: "Europe/Madrid"
+      });
+      setIsConfigModalOpen(false);
+    } catch (error) {
+      // If doc doesn't exist, create it
+      const { setDoc } = await import("firebase/firestore");
+      await setDoc(doc(db, "calendar_configs", "settings"), {
+        businessHours,
+        timezone: "Europe/Madrid"
+      });
+      setIsConfigModalOpen(false);
+    }
+  };
 
   // Calendar Logic
   const monthStart = startOfMonth(currentDate);
@@ -89,7 +121,7 @@ export default function CalendarPage() {
     setSelectedEvent(null);
     setNewEvent({
       ...newEvent,
-      date: format(day, "yyyy-MM-dd")
+      date: formatInMadrid(day, "yyyy-MM-dd")
     });
     setIsModalOpen(true);
   };
@@ -156,7 +188,7 @@ export default function CalendarPage() {
           <div className="flex items-center gap-2">
             <div className="w-1 h-6 bg-primary rounded-full" />
             <h1 className="text-2xl font-bold tracking-tight capitalize">
-              {format(currentDate, "MMMM yyyy", { locale: es })}
+              {formatInMadrid(currentDate, "MMMM yyyy")}
             </h1>
           </div>
           <div className="flex items-center bg-muted/30 rounded-xl p-1 border border-border/50">
@@ -170,19 +202,34 @@ export default function CalendarPage() {
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
+          <button 
+            onClick={() => setIsConfigModalOpen(true)}
+            className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-primary border border-border/50"
+            title="Configurar horarios"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </button>
         </div>
         
-        <button 
-          onClick={() => {
-            setSelectedEvent(null);
-            setNewEvent({ ...newEvent, date: format(new Date(), "yyyy-MM-dd") });
-            setIsModalOpen(true);
-          }}
-          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium shadow-lg shadow-primary/20"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Nueva Cita</span>
-        </button>
+        <div className="flex gap-3">
+          <div className="hidden lg:flex items-center gap-2 bg-primary/5 border border-primary/20 px-4 py-2 rounded-xl">
+            <Clock className="w-4 h-4 text-primary" />
+            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+              Horario: {businessHours.start} - {businessHours.end} (Madrid)
+            </span>
+          </div>
+          <button 
+            onClick={() => {
+              setSelectedEvent(null);
+              setNewEvent({ ...newEvent, date: getTodayInMadrid() });
+              setIsModalOpen(true);
+            }}
+            className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium shadow-lg shadow-primary/20"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Nueva Cita</span>
+          </button>
+        </div>
       </div>
 
       {/* Calendar Grid */}
@@ -341,6 +388,45 @@ export default function CalendarPage() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Config Modal */}
+      <Modal 
+        isOpen={isConfigModalOpen} 
+        onClose={() => setIsConfigModalOpen(false)} 
+        title="Configuración de Visitas"
+      >
+        <div className="space-y-6">
+          <p className="text-sm text-muted-foreground">Define el rango de horario disponible para las visitas en Madrid.</p>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Hora de Apertura</label>
+              <input 
+                type="time" 
+                value={businessHours.start}
+                onChange={(e) => setBusinessHours({...businessHours, start: e.target.value})}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Hora de Cierre</label>
+              <input 
+                type="time" 
+                value={businessHours.end}
+                onChange={(e) => setBusinessHours({...businessHours, end: e.target.value})}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
+              />
+            </div>
+          </div>
+
+          <button 
+            onClick={handleSaveConfig}
+            className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20"
+          >
+            Guardar Configuración
+          </button>
+        </div>
       </Modal>
 
       <style jsx global>{`
