@@ -14,28 +14,39 @@ export async function POST(req: Request) {
       phone_number = '+' + phone_number;
     }
 
-    // 1. Verificar si ya existe para evitar duplicados en el pipeline
+    // 1. Buscar el ID real de la etapa basado en el status enviado (puede ser el ID o el Nombre)
+    const stagesSnap = await adminDb.collection("pipeline_configs").get();
+    const stages = stagesSnap.docs.map(d => ({ id: d.data().id, label: d.data().label }));
+    
+    // Intentamos buscar por label (ej: "NUEVO LEAD") o por ID (ej: "nuevo")
+    const matchedStage = stages.find(s => 
+      s.label.toLowerCase() === status.toLowerCase() || 
+      s.id.toLowerCase() === status.toLowerCase()
+    );
+
+    const finalStatus = matchedStage ? matchedStage.id : (stages[0]?.id || "nuevo");
+
+    // 2. Verificar si ya existe para evitar duplicados en el pipeline
     const existingLeads = await adminDb.collection("leads")
       .where("phone_number", "==", phone_number)
       .limit(1)
       .get();
 
     if (!existingLeads.empty) {
-      // Si existe, actualizamos su estado y nombre en lugar de crear otro
       const leadId = existingLeads.docs[0].id;
       await adminDb.collection("leads").doc(leadId).update({
         name,
-        status,
+        status: finalStatus,
         updated_at: admin.firestore.FieldValue.serverTimestamp()
       });
       return NextResponse.json({ success: true, message: "Lead actualizado", leadId });
     }
 
-    // 2. Crear nuevo lead
+    // 3. Crear nuevo lead
     const newLead = {
       name,
       phone_number,
-      status,
+      status: finalStatus,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     };
