@@ -183,7 +183,7 @@ export default function CalendarPage() {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-border bg-card/40 backdrop-blur-md flex items-center justify-between">
+      <div className="p-8 border-b border-border/40 bg-card/20 backdrop-blur-xl flex items-center justify-between shadow-sm relative z-20">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-1 h-6 bg-primary rounded-full" />
@@ -204,18 +204,18 @@ export default function CalendarPage() {
           </div>
           <button 
             onClick={() => setIsConfigModalOpen(true)}
-            className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-primary border border-border/50"
+            className="p-2.5 hover:bg-primary/10 rounded-xl transition-all text-muted-foreground hover:text-primary border border-border/40 group"
             title="Configurar horarios"
           >
-            <MoreVertical className="w-5 h-5" />
+            <MoreVertical className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </button>
         </div>
         
-        <div className="flex gap-3">
-          <div className="hidden lg:flex items-center gap-2 bg-primary/5 border border-primary/20 px-4 py-2 rounded-xl">
-            <Clock className="w-4 h-4 text-primary" />
-            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
-              Horario: {businessHours.start} - {businessHours.end} (Madrid)
+        <div className="flex gap-4">
+          <div className="hidden lg:flex items-center gap-3 bg-primary/10 border border-primary/30 px-5 py-2.5 rounded-2xl shadow-inner">
+            <Clock className="w-4 h-4 text-primary animate-pulse" />
+            <span className="text-[10px] font-black text-primary uppercase tracking-[0.15em]">
+              {businessHours.start} — {businessHours.end} <span className="opacity-50 ml-1">MADRID</span>
             </span>
           </div>
           <button 
@@ -234,10 +234,10 @@ export default function CalendarPage() {
 
       {/* Calendar Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-7 gap-px bg-border border border-border rounded-2xl overflow-hidden shadow-2xl shadow-black/10">
+        <div className="grid grid-cols-7 bg-border/20 border border-border/40 rounded-3xl overflow-hidden shadow-2xl shadow-black/20 backdrop-blur-xl">
           {/* Weekdays */}
-          {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
-            <div key={day} className="bg-card/80 py-3 text-center text-xs font-bold text-muted-foreground uppercase tracking-widest border-b border-border">
+          {["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"].map((day) => (
+            <div key={day} className="bg-card/40 backdrop-blur-sm py-4 text-center text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] border-b border-border/40">
               {day}
             </div>
           ))}
@@ -252,12 +252,14 @@ export default function CalendarPage() {
               <div 
                 key={i} 
                 onClick={() => handleDayClick(day)}
-                className={`min-h-[120px] bg-card p-2 transition-all hover:bg-muted/30 cursor-pointer relative group ${
-                  !isSelectedMonth ? "opacity-30 bg-muted/10" : ""
+                className={`min-h-[130px] bg-card/20 p-3 transition-all hover:bg-primary/5 cursor-pointer relative group border-r border-b border-border/30 last:border-r-0 ${
+                  !isSelectedMonth ? "opacity-[0.15]" : "backdrop-blur-sm"
                 }`}
               >
-                <div className={`text-sm font-medium mb-2 w-7 h-7 flex items-center justify-center rounded-full transition-colors ${
-                  isTodayDay ? "bg-primary text-primary-foreground font-bold" : "text-foreground/70"
+                <div className={`text-sm font-bold mb-3 w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-300 ${
+                  isTodayDay 
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40 scale-110" 
+                    : "text-foreground/40 group-hover:text-foreground/80"
                 }`}>
                   {format(day, "d")}
                 </div>
@@ -431,14 +433,17 @@ export default function CalendarPage() {
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+          width: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          background: rgba(212, 175, 55, 0.2);
+          border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(212, 175, 55, 0.4);
         }
       `}</style>
     </div>
