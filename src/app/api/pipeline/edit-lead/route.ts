@@ -16,20 +16,19 @@ export async function POST(req: Request) {
 
     // Si no tenemos ID, buscamos por teléfono
     if (!leadId && phone_number) {
-      // Asegurar que el teléfono sea string para evitar error 500
-      const phoneStr = String(phone_number);
-      const cleanPhone = phoneStr.replace('+', '');
-      const phonesToTry = ['+' + cleanPhone, cleanPhone];
+      const cleanPhone = String(phone_number).replace(/\D/g, ''); // Deja solo números
       
-      const leadsSnap = await adminDb.collection("leads")
-        .where("phone_number", "in", phonesToTry)
-        .limit(1)
-        .get();
+      // Buscamos leads y comparamos el teléfono limpio
+      const leadsSnap = await adminDb.collection("leads").get();
+      const match = leadsSnap.docs.find(doc => {
+        const dbPhone = String(doc.data().phone_number || "").replace(/\D/g, '');
+        return dbPhone === cleanPhone;
+      });
 
-      if (leadsSnap.empty) {
-        return NextResponse.json({ error: "Contacto no encontrado por teléfono: " + phoneStr }, { status: 404 });
+      if (!match) {
+        return NextResponse.json({ error: "Contacto no encontrado por teléfono: " + phone_number }, { status: 404 });
       }
-      leadId = leadsSnap.docs[0].id;
+      leadId = match.id;
     }
 
     if (!leadId) {
