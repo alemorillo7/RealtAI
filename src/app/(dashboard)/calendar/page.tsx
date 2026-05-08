@@ -38,6 +38,8 @@ interface CalendarEvent {
   title: string;
   date: string;
   time?: string;
+  endTime?: string;
+  duration?: number; // in minutes
   location?: string;
   description?: string;
   color?: string;
@@ -52,6 +54,8 @@ export default function CalendarPage() {
     title: "",
     date: getTodayInMadrid(),
     time: "12:00",
+    endTime: "13:00",
+    duration: 60,
     location: "",
     description: "",
     color: "bg-primary"
@@ -132,7 +136,9 @@ export default function CalendarPage() {
     setNewEvent({
       title: event.title,
       date: event.date,
-      time: event.time || "",
+      time: event.time || "12:00",
+      endTime: event.endTime || "13:00",
+      duration: event.duration || 60,
       location: event.location || "",
       description: event.description || "",
       color: event.color || "bg-primary"
@@ -317,16 +323,45 @@ export default function CalendarPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Hora</label>
+              <label className="text-sm font-medium text-muted-foreground">Hora Inicio</label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input 
                   type="time" 
                   value={newEvent.time}
-                  onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                  onChange={(e) => {
+                    const newTime = e.target.value;
+                    const [h, m] = newTime.split(":").map(Number);
+                    const end = new Date();
+                    end.setHours(h, m + (newEvent.duration || 60));
+                    const endTime = `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
+                    setNewEvent({...newEvent, time: newTime, endTime});
+                  }}
                   className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Duración</label>
+              <select 
+                value={newEvent.duration}
+                onChange={(e) => {
+                  const dur = Number(e.target.value);
+                  const [h, m] = newEvent.time.split(":").map(Number);
+                  const end = new Date();
+                  end.setHours(h, m + dur);
+                  const endTime = `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
+                  setNewEvent({...newEvent, duration: dur, endTime});
+                }}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
+              >
+                <option value={15}>15 min</option>
+                <option value={30}>30 min</option>
+                <option value={45}>45 min</option>
+                <option value={60}>1 hora</option>
+                <option value={90}>1.5 horas</option>
+                <option value={120}>2 horas</option>
+              </select>
             </div>
           </div>
 

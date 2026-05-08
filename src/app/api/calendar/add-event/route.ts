@@ -4,7 +4,7 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { title, date, time, location, description, color = "bg-primary" } = await req.json();
+    const { title, date, time, endTime, duration, location, description, color = "bg-primary" } = await req.json();
 
     if (!title || !date) {
       return NextResponse.json({ error: "Faltan datos obligatorios (title o date)" }, { status: 400 });
@@ -14,7 +14,9 @@ export async function POST(req: Request) {
     const newEvent = {
       title,
       date,
-      time: time || "",
+      time: time || "12:00",
+      endTime: endTime || "",
+      duration: duration || 60,
       location: location || "",
       description: description || "",
       color,

@@ -4,7 +4,7 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { eventId, title, date, time, location, description, color } = await req.json();
+    const { eventId, title, date, time, endTime, duration, location, description, color } = await req.json();
 
     if (!eventId) {
       return NextResponse.json({ error: "Falta eventId" }, { status: 400 });
@@ -17,6 +17,8 @@ export async function POST(req: Request) {
     if (title) updateData.title = title;
     if (date) updateData.date = date;
     if (time !== undefined) updateData.time = time;
+    if (endTime !== undefined) updateData.endTime = endTime;
+    if (duration !== undefined) updateData.duration = duration;
     if (location !== undefined) updateData.location = location;
     if (description !== undefined) updateData.description = description;
     if (color) updateData.color = color;
