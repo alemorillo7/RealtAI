@@ -29,7 +29,7 @@ export default function PipelinePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
-  const [newLead, setNewLead] = useState({ name: "", phone: "", status: "nuevo" as Lead['status'] });
+  const [newLead, setNewLead] = useState({ name: "", phone: "", email: "", status: "nuevo" as Lead['status'] });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch Columns and Leads
@@ -96,13 +96,13 @@ export default function PipelinePage() {
 
   const openAddModal = (status?: Lead['status']) => {
     setEditingLead(null);
-    setNewLead({ name: "", phone: "", status: status || 'nuevo' });
+    setNewLead({ name: "", phone: "", email: "", status: status || 'nuevo' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (lead: Lead) => {
     setEditingLead(lead);
-    setNewLead({ name: lead.name, phone: lead.phone_number, status: lead.status });
+    setNewLead({ name: lead.name, phone: lead.phone_number, email: lead.email || "", status: lead.status });
     setIsModalOpen(true);
   };
 
@@ -116,18 +116,20 @@ export default function PipelinePage() {
         await updateDoc(doc(db, "leads", editingLead.id), {
           name: newLead.name,
           phone_number: newLead.phone,
+          email: newLead.email,
           status: newLead.status,
         });
       } else {
         await addDoc(collection(db, "leads"), {
           name: newLead.name,
           phone_number: newLead.phone,
+          email: newLead.email,
           status: newLead.status,
           created_at: serverTimestamp(),
         });
       }
       setIsModalOpen(false);
-      setNewLead({ name: "", phone: "", status: "nuevo" });
+      setNewLead({ name: "", phone: "", email: "", status: "nuevo" });
       setEditingLead(null);
     } catch (error) {
       console.error("Error saving lead:", error);
@@ -274,9 +276,17 @@ export default function PipelinePage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{lead.name}</h4>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                          <Phone className="w-3 h-3" />
-                          <span>{lead.phone_number}</span>
+                        <div className="flex flex-col gap-1 mt-0.5">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Phone className="w-3 h-3" />
+                            <span>{lead.phone_number}</span>
+                          </div>
+                          {lead.email && (
+                            <div className="flex items-center gap-1.5 text-[10px] text-primary/70">
+                              <MessageSquare className="w-3 h-3" />
+                              <span className="truncate">{lead.email}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -349,6 +359,16 @@ export default function PipelinePage() {
               onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
               className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
               placeholder="+54..."
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Email (Opcional)</label>
+            <input 
+              type="email" 
+              value={newLead.email}
+              onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
+              placeholder="correo@ejemplo.com"
             />
           </div>
           <div className="space-y-2">

@@ -36,9 +36,11 @@ export interface Lead {
   id: string;
   name: string;
   phone_number: string;
-  status: string;
+  email?: string;
+  status: 'nuevo' | 'interesado' | 'discovery' | 'preguntas' | 'propuesta' | string;
   description?: string;
   created_at: FirebaseFirestore.Timestamp | any;
+  updated_at?: FirebaseFirestore.Timestamp | any;
 }
 
 export interface Agent {
