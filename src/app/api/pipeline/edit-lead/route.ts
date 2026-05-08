@@ -16,8 +16,9 @@ export async function POST(req: Request) {
 
     // Si no tenemos ID, buscamos por teléfono
     if (!leadId && phone_number) {
-      // Intentar buscar con + y sin +
-      const cleanPhone = phone_number.replace('+', '');
+      // Asegurar que el teléfono sea string para evitar error 500
+      const phoneStr = String(phone_number);
+      const cleanPhone = phoneStr.replace('+', '');
       const phonesToTry = ['+' + cleanPhone, cleanPhone];
       
       const leadsSnap = await adminDb.collection("leads")
@@ -26,9 +27,13 @@ export async function POST(req: Request) {
         .get();
 
       if (leadsSnap.empty) {
-        return NextResponse.json({ error: "Contacto no encontrado por teléfono" }, { status: 404 });
+        return NextResponse.json({ error: "Contacto no encontrado por teléfono: " + phoneStr }, { status: 404 });
       }
       leadId = leadsSnap.docs[0].id;
+    }
+
+    if (!leadId) {
+      return NextResponse.json({ error: "No se pudo determinar el ID del lead" }, { status: 400 });
     }
 
     const updateData: any = {
