@@ -18,25 +18,28 @@ export async function POST(req: Request) {
     if (!leadId && phone_number) {
       const cleanPhone = String(phone_number).replace(/\D/g, '');
       
-      // 1. Buscar en Leads
-      const leadsSnap = await adminDb.collection("leads").get();
-      let match = leadsSnap.docs.find(doc => 
-        String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
-      );
+      const collectionsToSearch = ["leads", "Leads", "contacts"];
+      let match = null;
+      let foundCollection = "";
 
-      let foundCollection = "leads";
-
-      // 2. Si no está en Leads, buscar en Contactos
-      if (!match) {
-        const contactsSnap = await adminDb.collection("contacts").get();
-        match = contactsSnap.docs.find(doc => 
+      for (const colName of collectionsToSearch) {
+        const snap = await adminDb.collection(colName).get();
+        match = snap.docs.find(doc => 
           String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
         );
-        foundCollection = "contacts";
+        if (match) {
+          foundCollection = colName;
+          break;
+        }
       }
 
       if (!match) {
-        return NextResponse.json({ error: "No encontrado en Leads ni Contactos: " + phone_number }, { status: 404 });
+        return NextResponse.json({ 
+          error: "No encontrado en Leads ni Contactos",
+          phone_sent: phone_number,
+          phone_cleaned: cleanPhone,
+          collections_searched: collectionsToSearch
+        }, { status: 404 });
       }
       
       leadId = match.id;
@@ -60,16 +63,10 @@ export async function POST(req: Request) {
       if (email) updateData.email = email;
       if (status) updateData.status = status;
 
-      // Intentar en leads
-      try {
-        await adminDb.collection("leads").doc(leadId).update(updateData);
-      } catch (e) {
-        // Si falla, intentar en contacts
+      for (const colName of ["leads", "Leads", "contacts"]) {
         try {
-          await adminDb.collection("contacts").doc(leadId).update(updateData);
-        } catch (e2) {
-          console.error("No se pudo actualizar por ID en ninguna colección");
-        }
+          await adminDb.collection(colName).doc(leadId).update(updateData);
+        } catch (e) {}
       }
     }
 
