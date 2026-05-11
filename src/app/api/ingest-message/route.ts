@@ -24,10 +24,10 @@ export async function POST(req: Request) {
     let dbRealName = "";
 
     if (contactSnapshot.empty) {
-      // Si es nuevo, el nombre completo es el teléfono y el nick es el de WhatsApp
+      // Si es nuevo, dejamos el nombre completo vacío (-) y el nick es el de WhatsApp
       await contactsRef.add({
         phone_number,
-        name: phone_number,
+        name: "-", // Ya no ponemos el número aquí
         user_name: cleanWhatsAppName,
         created_at: timestamp,
       });

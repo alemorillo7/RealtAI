@@ -52,7 +52,9 @@ export async function POST(req: Request) {
       if (finalName) updateData.name = finalName;
       if (email) updateData.email = email;
       if (status) updateData.status = status;
-      if (user_name) updateData.user_name = user_name;
+      
+      const finalNick = user_name || nickname;
+      if (finalNick) updateData.user_name = finalNick;
 
       await adminDb.collection(foundCollection).doc(leadId).update(updateData);
     } else if (leadId) {
@@ -63,6 +65,9 @@ export async function POST(req: Request) {
       if (finalName) updateData.name = finalName;
       if (email) updateData.email = email;
       if (status) updateData.status = status;
+      
+      const finalNick = user_name || nickname;
+      if (finalNick) updateData.user_name = finalNick;
 
       for (const colName of ["leads", "Leads", "contacts"]) {
         try {
