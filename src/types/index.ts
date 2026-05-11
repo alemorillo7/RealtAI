@@ -20,8 +20,9 @@ export interface Message {
 
 export interface Contact {
   id: string;
-  phone_number: string;
   name: string;
+  user_name?: string;
+  phone_number: string;
   email?: string;
   notes?: string;
   created_at: FirebaseFirestore.Timestamp | any;
@@ -36,6 +37,7 @@ export interface Tag {
 export interface Lead {
   id: string;
   name: string;
+  user_name?: string;
   phone_number: string;
   email?: string;
   status: 'nuevo' | 'interesado' | 'discovery' | 'preguntas' | 'propuesta' | string;
