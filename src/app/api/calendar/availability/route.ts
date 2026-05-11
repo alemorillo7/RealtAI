@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { format, addMinutes, startOfDay, endOfDay, isBefore, parse } from "date-fns";
+import { format, addMinutes, startOfDay, endOfDay, isBefore, parse, addDays } from "date-fns";
+import { es } from "date-fns/locale";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const dateStr = searchParams.get("date"); // Formato YYYY-MM-DD
 
-    if (!dateStr) {
-      return NextResponse.json({ error: "Falta el parámetro 'date'" }, { status: 400 });
-    }
-
-    // 1. Obtener configuración con valores por defecto ultra-seguros
+    // 1. Obtener configuración con valores por defecto
     const configSnap = await adminDb.collection("settings").doc("calendar").get();
     const dbData = configSnap.exists ? configSnap.data() : {};
     
@@ -23,52 +20,74 @@ export async function GET(req: Request) {
       time_ranges: dbData?.time_ranges || null
     };
 
-    const targetDate = new Date(dateStr + "T00:00:00");
-    if (isNaN(targetDate.getTime())) {
-      return NextResponse.json({ error: "Fecha inválida. Use formato YYYY-MM-DD" }, { status: 400 });
-    }
-    const dayOfWeek = targetDate.getDay();
-
-    // 2. Verificar si es día laboral
-    if (!config.working_days.includes(dayOfWeek)) {
-      return NextResponse.json({ 
-        available: false, 
-        message: "La inmobiliaria no trabaja este día",
-        slots: [] 
-      });
-    }
-
-    // 3. Obtener citas ya agendadas para ese día (en la colección 'events')
-    const appointmentsSnap = await adminDb.collection("events")
-      .where("date", "==", dateStr)
-      .get();
+    // 2. Determinar el rango de fechas a consultar
+    const daysToConsult: string[] = [];
     
-    const bookedSlots = appointmentsSnap.docs.map(d => d.data().time); // Ej: ["10:00", "15:30"]
+    if (dateStr) {
+      daysToConsult.push(dateStr);
+    } else {
+      // Si no hay fecha, consultamos los próximos 7 días
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(new Date(), i);
+        daysToConsult.push(format(d, "yyyy-MM-dd"));
+      }
+    }
 
-    // 4. Generar todos los slots posibles recorriendo todos los rangos (horario cortado)
-    const slots = [];
-    const ranges = config.time_ranges || [{ start: config.start_time || "09:00", end: config.end_time || "18:00" }];
+    const fullAvailability: any[] = [];
 
-    for (const range of ranges) {
-      let current = parse(range.start, "HH:mm", targetDate);
-      const end = parse(range.end, "HH:mm", targetDate);
+    for (const currentTargetDateStr of daysToConsult) {
+      const targetDate = new Date(currentTargetDateStr + "T00:00:00");
+      if (isNaN(targetDate.getTime())) continue;
 
-      while (isBefore(current, end)) {
-        const timeStr = format(current, "HH:mm");
-        
-        // Solo agregar si no está ocupado
-        if (!bookedSlots.includes(timeStr)) {
-          slots.push(timeStr);
+      const dayOfWeek = targetDate.getDay();
+
+      // Verificar si es día laboral
+      if (!config.working_days.includes(dayOfWeek)) {
+        continue; // Saltamos días no laborales
+      }
+
+      // Obtener citas ya agendadas
+      const appointmentsSnap = await adminDb.collection("events")
+        .where("date", "==", currentTargetDateStr)
+        .get();
+      
+      const bookedSlots = appointmentsSnap.docs.map(d => d.data().time);
+
+      // Generar slots
+      const daySlots = [];
+      const ranges = config.time_ranges || [{ start: config.start_time || "09:00", end: config.end_time || "18:00" }];
+
+      for (const range of ranges) {
+        let current = parse(range.start, "HH:mm", targetDate);
+        const end = parse(range.end, "HH:mm", targetDate);
+
+        while (isBefore(current, end)) {
+          const timeStr = format(current, "HH:mm");
+          
+          // Solo agregar si no está ocupado Y si no ha pasado la hora (si es hoy)
+          const now = new Date();
+          const slotDateTime = parse(timeStr, "HH:mm", targetDate);
+          
+          if (!bookedSlots.includes(timeStr) && isBefore(now, slotDateTime)) {
+            daySlots.push(timeStr);
+          }
+          
+          current = addMinutes(current, config.slot_duration || 60);
         }
-        
-        current = addMinutes(current, config.slot_duration || 60);
+      }
+
+      if (daySlots.length > 0) {
+        fullAvailability.push({
+          date: currentTargetDateStr,
+          day_name: format(targetDate, "EEEE", { locale: es }),
+          slots: daySlots
+        });
       }
     }
 
     return NextResponse.json({
-      available: slots.length > 0,
-      date: dateStr,
-      slots: slots
+      success: true,
+      availability: fullAvailability
     });
 
   } catch (error) {
