@@ -63,7 +63,11 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
 
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-  const [businessHours, setBusinessHours] = useState({ start: "09:00", end: "18:00" });
+  const [calendarConfig, setCalendarConfig] = useState({ 
+    working_days: [1, 2, 3, 4, 5],
+    slot_duration: 60,
+    time_ranges: [{ start: "09:00", end: "18:00" }]
+  });
 
   // Fetch Events and Config
   useEffect(() => {
@@ -77,9 +81,14 @@ export default function CalendarPage() {
       setLoading(false);
     });
 
-    const unsubConfig = onSnapshot(doc(db, "calendar_configs", "settings"), (doc) => {
-      if (doc.exists()) {
-        setBusinessHours(doc.data().businessHours);
+    const unsubConfig = onSnapshot(doc(db, "settings", "calendar"), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCalendarConfig({
+          working_days: data.working_days || [1, 2, 3, 4, 5],
+          slot_duration: data.slot_duration || 60,
+          time_ranges: data.time_ranges || [{ start: data.start_time || "09:00", end: data.end_time || "18:00" }]
+        });
       }
     });
 
@@ -91,17 +100,20 @@ export default function CalendarPage() {
 
   const handleSaveConfig = async () => {
     try {
-      await updateDoc(doc(db, "calendar_configs", "settings"), {
-        businessHours,
-        timezone: "Europe/Madrid"
+      await updateDoc(doc(db, "settings", "calendar"), {
+        working_days: calendarConfig.working_days,
+        slot_duration: calendarConfig.slot_duration,
+        time_ranges: calendarConfig.time_ranges,
+        updated_at: serverTimestamp()
       });
       setIsConfigModalOpen(false);
     } catch (error) {
-      // If doc doesn't exist, create it
       const { setDoc } = await import("firebase/firestore");
-      await setDoc(doc(db, "calendar_configs", "settings"), {
-        businessHours,
-        timezone: "Europe/Madrid"
+      await setDoc(doc(db, "settings", "calendar"), {
+        working_days: calendarConfig.working_days,
+        slot_duration: calendarConfig.slot_duration,
+        time_ranges: calendarConfig.time_ranges,
+        updated_at: serverTimestamp()
       });
       setIsConfigModalOpen(false);
     }
@@ -220,9 +232,13 @@ export default function CalendarPage() {
         <div className="flex gap-4">
           <div className="hidden lg:flex items-center gap-3 bg-primary/10 border border-primary/30 px-5 py-2.5 rounded-2xl shadow-inner">
             <Clock className="w-4 h-4 text-primary animate-pulse" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.15em]">
-              {businessHours.start} — {businessHours.end} <span className="opacity-50 ml-1">MADRID</span>
-            </span>
+            <div className="flex flex-col">
+              {calendarConfig.time_ranges.map((range, idx) => (
+                <span key={idx} className="text-[10px] font-black text-primary uppercase tracking-[0.15em]">
+                  {range.start} — {range.end}
+                </span>
+              ))}
+            </div>
           </div>
           <button 
             onClick={() => {
@@ -434,27 +450,102 @@ export default function CalendarPage() {
         title="Configuración de Visitas"
       >
         <div className="space-y-6">
-          <p className="text-sm text-muted-foreground">Define el rango de horario disponible para las visitas en Madrid.</p>
+          <p className="text-sm text-muted-foreground">Define los días y horarios (puedes añadir varios turnos).</p>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Hora de Apertura</label>
-              <input 
-                type="time" 
-                value={businessHours.start}
-                onChange={(e) => setBusinessHours({...businessHours, start: e.target.value})}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
-              />
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-muted-foreground">Días Laborales</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                {id: 1, label: "Lun"}, {id: 2, label: "Mar"}, {id: 3, label: "Mie"},
+                {id: 4, label: "Jue"}, {id: 5, label: "Vie"}, {id: 6, label: "Sab"}, {id: 0, label: "Dom"}
+              ].map(day => (
+                <button
+                  key={day.id}
+                  onClick={() => {
+                    const days = calendarConfig.working_days.includes(day.id)
+                      ? calendarConfig.working_days.filter(d => d !== day.id)
+                      : [...calendarConfig.working_days, day.id];
+                    setCalendarConfig({...calendarConfig, working_days: days});
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                    calendarConfig.working_days.includes(day.id)
+                      ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                  }`}
+                >
+                  {day.label}
+                </button>
+              ))}
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Hora de Cierre</label>
-              <input 
-                type="time" 
-                value={businessHours.end}
-                onChange={(e) => setBusinessHours({...businessHours, end: e.target.value})}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
-              />
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">Rangos Horarios</label>
+              <button 
+                onClick={() => setCalendarConfig({
+                  ...calendarConfig, 
+                  time_ranges: [...calendarConfig.time_ranges, { start: "16:00", end: "20:00" }]
+                })}
+                className="text-primary hover:underline text-xs flex items-center gap-1 font-bold"
+              >
+                <Plus className="w-3 h-3" /> Añadir turno
+              </button>
             </div>
+            
+            {calendarConfig.time_ranges.map((range, index) => (
+              <div key={index} className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/50">
+                <div className="grid grid-cols-2 gap-3 flex-1">
+                  <input 
+                    type="time" 
+                    value={range.start}
+                    onChange={(e) => {
+                      const newRanges = [...calendarConfig.time_ranges];
+                      newRanges[index].start = e.target.value;
+                      setCalendarConfig({...calendarConfig, time_ranges: newRanges});
+                    }}
+                    className="bg-background border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary/50 text-foreground"
+                  />
+                  <input 
+                    type="time" 
+                    value={range.end}
+                    onChange={(e) => {
+                      const newRanges = [...calendarConfig.time_ranges];
+                      newRanges[index].end = e.target.value;
+                      setCalendarConfig({...calendarConfig, time_ranges: newRanges});
+                    }}
+                    className="bg-background border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary/50 text-foreground"
+                  />
+                </div>
+                {calendarConfig.time_ranges.length > 1 && (
+                  <button 
+                    onClick={() => {
+                      const newRanges = calendarConfig.time_ranges.filter((_, i) => i !== index);
+                      setCalendarConfig({...calendarConfig, time_ranges: newRanges});
+                    }}
+                    className="text-muted-foreground hover:text-red-500 p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Duración de cada cita</label>
+            <select
+              value={calendarConfig.slot_duration}
+              onChange={(e) => setCalendarConfig({...calendarConfig, slot_duration: Number(e.target.value)})}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 transition-all text-foreground"
+            >
+              <option value={15}>15 minutos</option>
+              <option value={30}>30 minutos</option>
+              <option value={45}>45 minutos</option>
+              <option value={60}>1 hora</option>
+              <option value={90}>1.5 horas</option>
+              <option value={120}>2 horas</option>
+            </select>
           </div>
 
           <button 

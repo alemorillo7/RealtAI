@@ -103,7 +103,7 @@ export default function ChatWindow({ chatId }: Props) {
       <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-[0.03] dark:opacity-[0.02]" />
       
       {/* Header */}
-      <div className="p-4 border-b border-border bg-card/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10 shadow-sm">
+      <div className="p-4 border-b border-border bg-card/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center border border-border shadow-inner">
             <UserCircle2 className="w-6 h-6 text-foreground" />

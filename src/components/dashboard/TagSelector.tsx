@@ -48,7 +48,7 @@ export default function TagSelector({ chatId }: { chatId: string }) {
       )}
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute top-full right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-2xl p-2 z-[100] animate-in fade-in zoom-in-95 duration-100">
           <h4 className="text-xs font-semibold text-muted-foreground mb-2 px-2 uppercase tracking-wider">Asignar Etiquetas</h4>
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {availableTags.map(tag => {
