@@ -4,68 +4,104 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const payload = await req.json();
-    let { lead_id, phone_number, name, full_name, fullName, Full_Name, email, Email, status, user_name, nickname } = payload;
+    let { lead_id, phone_number, name, full_name, email, status, user_name, nickname } = await req.json();
 
-    // LOG DE EMERGENCIA: Guardamos lo que llega para ver qué está pasando
-    await adminDb.collection("debug_n8n").add({
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      payload: payload
-    });
-
-    const finalName = name || full_name || fullName || Full_Name;
-    const finalEmail = email || Email;
+    // Prioridad al lead_id si existe
     let leadId = lead_id;
+    const finalName = name || full_name;
 
-    // 1. Preparar datos de actualización
-    const updateData: any = {
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
-    };
-    
-    if (finalName && finalName.trim() !== "" && finalName !== "-") {
-      updateData.name = finalName.trim();
-    }
-    if (finalEmail && finalEmail.includes("@")) {
-      updateData.email = finalEmail.trim();
-    }
-    if (status) updateData.status = status;
-    
-    const rawNick = (user_name || nickname || "").toString().trim();
-    if (rawNick && rawNick.length > 1) {
-      updateData.user_name = rawNick;
+    if (!leadId && !phone_number) {
+      return NextResponse.json({ error: "Falta lead_id o phone_number" }, { status: 400 });
     }
 
-    // 2. Búsqueda y actualización masiva
-    const collections = ["leads", "Leads", "contacts"];
-    let updatedCount = 0;
+    // Si no tenemos ID, buscamos por teléfono en todas las colecciones
+    if (!leadId && phone_number) {
+      const cleanPhone = String(phone_number).replace(/\D/g, '');
+      
+      const collectionsToSearch = ["leads", "Leads", "contacts"];
+      let match = null;
+      let foundCollection = "";
 
-    const cleanPhone = phone_number ? String(phone_number).replace(/\D/g, '') : "";
-    const last9 = cleanPhone.slice(-9); // Bajamos a 9 dígitos para ser aún más permisivos
+      for (const colName of collectionsToSearch) {
+        const snap = await adminDb.collection(colName).get();
+        match = snap.docs.find(doc => 
+          String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
+        );
+        if (match) {
+          foundCollection = colName;
+          break;
+        }
+      }
 
-    for (const colName of collections) {
-      const snap = await adminDb.collection(colName).get();
-      for (const doc of snap.docs) {
-        const dbPhone = String(doc.data().phone_number || "").replace(/\D/g, '');
-        if ((dbPhone.endsWith(last9) && last9.length >= 7) || doc.id === leadId) {
-          await doc.ref.update(updateData);
-          updatedCount++;
+      if (!match) {
+        return NextResponse.json({ 
+          error: "No encontrado en Leads ni Contactos",
+          phone_sent: phone_number,
+          phone_cleaned: cleanPhone,
+          collections_searched: collectionsToSearch
+        }, { status: 404 });
+      }
+      
+      leadId = match.id;
+      
+      // Actualizar en la colección encontrada
+      const updateData: any = {
+        updated_at: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      if (finalName && finalName !== "-") {
+        updateData.name = finalName.trim();
+      }
+      if (email && email.includes("@")) {
+        updateData.email = email.trim();
+      }
+      if (status) updateData.status = status;
+      
+      const rawNick = (user_name || nickname || "").toString().trim();
+      if (rawNick && rawNick.length > 1) { // Solo si es un nombre real (más de 1 letra)
+        updateData.user_name = rawNick;
+      }
+
+      await adminDb.collection(foundCollection).doc(leadId).update(updateData);
+    } else if (leadId) {
+      const updateData: any = {
+        updated_at: admin.firestore.FieldValue.serverTimestamp()
+      };
+      if (finalName && finalName !== "-") updateData.name = finalName.trim();
+      if (email && email.includes("@")) updateData.email = email.trim();
+      if (status) updateData.status = status;
+      
+      const rawNick = (user_name || nickname || "").toString().trim();
+      if (rawNick && rawNick.length > 1) {
+        updateData.user_name = rawNick;
+      }
+
+      for (const colName of ["leads", "Leads", "contacts"]) {
+        try {
+          await adminDb.collection(colName).doc(leadId).update(updateData);
+        } catch (e) {}
+      }
+    }
+
+    // Sincronizar con el chat si existe
+    if (finalName || email) {
+      const chatUpdate: any = {};
+      if (finalName) chatUpdate.real_name = finalName;
+      
+      const phoneToSearch = (await adminDb.collection("leads").doc(leadId).get()).data()?.phone_number;
+      if (phoneToSearch) {
+        const chatSnap = await adminDb.collection("chats").where("phone_number", "==", phoneToSearch).limit(1).get();
+        if (!chatSnap.empty) {
+          await adminDb.collection("chats").doc(chatSnap.docs[0].id).update(chatUpdate);
         }
       }
     }
 
-    // 3. Sincronizar Chat
-    const chatSnap = await adminDb.collection("chats").get();
-    for (const doc of chatSnap.docs) {
-      const docPhone = String(doc.data().phone_number || doc.id).replace(/\D/g, '');
-      if (docPhone.endsWith(last9) && last9.length >= 7) {
-        const chatUpdate: any = { updated_at: admin.firestore.FieldValue.serverTimestamp() };
-        if (updateData.name) chatUpdate.real_name = updateData.name;
-        if (updateData.user_name) chatUpdate.user_name = updateData.user_name;
-        await doc.ref.update(chatUpdate);
-      }
-    }
-
-    return NextResponse.json({ success: true, updated: updatedCount });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Contacto y Chat actualizados correctamente",
+      leadId 
+    });
 
   } catch (error) {
     console.error("Error en edit-lead:", error);
