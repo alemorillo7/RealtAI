@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
       );
 
-      let collectionName = "leads";
+      let foundCollection = "leads";
 
       // 2. Si no está en Leads, buscar en Contactos
       if (!match) {
@@ -32,32 +32,46 @@ export async function POST(req: Request) {
         match = contactsSnap.docs.find(doc => 
           String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
         );
-        collectionName = "contacts";
+        foundCollection = "contacts";
       }
 
       if (!match) {
-        return NextResponse.json({ error: "Contacto no encontrado en ninguna lista: " + phone_number }, { status: 404 });
+        return NextResponse.json({ error: "No encontrado en Leads ni Contactos: " + phone_number }, { status: 404 });
       }
       
       leadId = match.id;
-      // Guardamos la colección donde lo encontramos para la actualización
-      (global as any).targetCollection = collectionName;
+      
+      // Actualizar en la colección encontrada
+      const updateData: any = {
+        updated_at: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      if (finalName) updateData.name = finalName;
+      if (email) updateData.email = email;
+      if (status) updateData.status = status;
+
+      await adminDb.collection(foundCollection).doc(leadId).update(updateData);
+    } else if (leadId) {
+      // Si ya tenemos el ID, intentamos actualizar en ambas por si acaso
+      const updateData: any = {
+        updated_at: admin.firestore.FieldValue.serverTimestamp()
+      };
+      if (finalName) updateData.name = finalName;
+      if (email) updateData.email = email;
+      if (status) updateData.status = status;
+
+      // Intentar en leads
+      try {
+        await adminDb.collection("leads").doc(leadId).update(updateData);
+      } catch (e) {
+        // Si falla, intentar en contacts
+        try {
+          await adminDb.collection("contacts").doc(leadId).update(updateData);
+        } catch (e2) {
+          console.error("No se pudo actualizar por ID en ninguna colección");
+        }
+      }
     }
-
-    if (!leadId) {
-      return NextResponse.json({ error: "No se pudo determinar el ID del lead" }, { status: 400 });
-    }
-
-    const updateData: any = {
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (finalName) updateData.name = finalName;
-    if (email) updateData.email = email;
-    if (status) updateData.status = status;
-
-    const collectionToUpdate = (global as any).targetCollection || "leads";
-    await adminDb.collection(collectionToUpdate).doc(leadId).update(updateData);
 
     // Sincronizar con el chat si existe
     if (finalName || email) {
