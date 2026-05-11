@@ -27,17 +27,19 @@ export async function POST(req: Request) {
       // Si es nuevo, dejamos el nombre completo vacío (-) y el nick es el de WhatsApp
       await contactsRef.add({
         phone_number,
-        name: "-", // Ya no ponemos el número aquí
+        name: "-", 
         user_name: cleanWhatsAppName,
         created_at: timestamp,
       });
     } else {
       // Si ya existe, recuperamos el nombre real que pusimos en el CRM
       dbRealName = contactSnapshot.docs[0].data().name || "";
-      // Aprovechamos para actualizar el nick por si cambió en WhatsApp
-      await contactSnapshot.docs[0].ref.update({
-        user_name: cleanWhatsAppName
-      });
+      // SOLO actualizamos el nick si viene un nombre nuevo y no está vacío
+      if (cleanWhatsAppName && sender === "user") {
+        await contactSnapshot.docs[0].ref.update({
+          user_name: cleanWhatsAppName
+        });
+      }
     }
 
     // 1. Guardar o actualizar el Chat
@@ -46,10 +48,14 @@ export async function POST(req: Request) {
 
     const chatData: any = {
       phone_number,
-      user_name: cleanWhatsAppName, // Este sigue siendo el nombre original para compatibilidad
-      real_name: dbRealName,        // Este es el que el dashboard prioriza
       updated_at: timestamp,
+      real_name: dbRealName,
     };
+
+    // Solo actualizar el user_name en el chat si viene uno válido
+    if (cleanWhatsAppName && sender === "user") {
+      chatData.user_name = cleanWhatsAppName;
+    }
 
     if (!chatSnap.exists) {
       await chatRef.set({

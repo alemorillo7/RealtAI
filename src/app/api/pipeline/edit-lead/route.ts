@@ -49,25 +49,25 @@ export async function POST(req: Request) {
         updated_at: admin.firestore.FieldValue.serverTimestamp()
       };
 
-      if (finalName) updateData.name = finalName;
-      if (email) updateData.email = email;
-      if (status) updateData.status = status;
-      
-      const finalNick = user_name || nickname;
-      if (finalNick) updateData.user_name = finalNick;
+      const rawNick = (user_name || nickname || "").toString().trim();
+      if (rawNick && rawNick.length > 0) {
+        updateData.user_name = rawNick;
+      }
 
       await adminDb.collection(foundCollection).doc(leadId).update(updateData);
     } else if (leadId) {
-      // Si ya tenemos el ID, intentamos actualizar en ambas por si acaso
+      // Si ya tenemos el ID, intentamos actualizar en todas por si acaso
       const updateData: any = {
         updated_at: admin.firestore.FieldValue.serverTimestamp()
       };
-      if (finalName) updateData.name = finalName;
-      if (email) updateData.email = email;
+      if (finalName && finalName.trim()) updateData.name = finalName.trim();
+      if (email && email.trim()) updateData.email = email.trim();
       if (status) updateData.status = status;
       
-      const finalNick = user_name || nickname;
-      if (finalNick) updateData.user_name = finalNick;
+      const rawNick = (user_name || nickname || "").toString().trim();
+      if (rawNick && rawNick.length > 0) {
+        updateData.user_name = rawNick;
+      }
 
       for (const colName of ["leads", "Leads", "contacts"]) {
         try {

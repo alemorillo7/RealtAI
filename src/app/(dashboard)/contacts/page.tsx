@@ -58,21 +58,23 @@ export default function ContactsPage() {
       let finalPhone = phone.trim();
       if (!finalPhone.startsWith('+')) finalPhone = '+' + finalPhone;
 
+      const contactData: any = {
+        name,
+        phone_number: finalPhone,
+        email,
+        notes,
+      };
+
+      // SOLO incluimos el nickname si el usuario escribió algo
+      if (nickname.trim()) {
+        contactData.user_name = nickname;
+      }
+
       if (editingContact) {
-        await updateDoc(doc(db, "contacts", editingContact.id), {
-          name,
-          user_name: nickname,
-          phone_number: finalPhone,
-          email,
-          notes,
-        });
+        await updateDoc(doc(db, "contacts", editingContact.id), contactData);
       } else {
         await addDoc(collection(db, "contacts"), {
-          name,
-          user_name: nickname,
-          phone_number: finalPhone,
-          email,
-          notes,
+          ...contactData,
           created_at: new Date(),
         });
       }
