@@ -4,31 +4,39 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { title, date, time, endTime, duration, location, description, color = "bg-primary" } = await req.json();
+    const { datetime, title, phone_number, description, location } = await req.json();
 
-    if (!title || !date) {
-      return NextResponse.json({ error: "Faltan datos obligatorios (title o date)" }, { status: 400 });
+    if (!datetime || !title) {
+      return NextResponse.json({ error: "Faltan campos obligatorios: datetime, title" }, { status: 400 });
     }
 
-    // El formato de date debe ser "YYYY-MM-DD"
-    const newEvent = {
+    // Extraer date (YYYY-MM-DD) y time (HH:mm) del string ISO
+    const date = datetime.split('T')[0];
+    const time = datetime.split('T')[1].substring(0, 5);
+
+    // 1. Crear el evento en la colección 'events' (la que usa el calendario del CRM)
+    const eventData = {
+      date, // Formato YYYY-MM-DD
+      time, // Formato HH:mm
       title,
-      date,
-      time: time || "12:00",
-      endTime: endTime || "",
-      duration: duration || 60,
-      location: location || "",
-      description: description || "",
-      color,
+      phone_number: phone_number || "",
+      description: description || `Cita agendada por Bot para el número ${phone_number}`,
+      location: location || "Oficina / Virtual",
+      color: "bg-primary", // Color dorado por defecto para citas de bot
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    const docRef = await adminDb.collection("events").add(newEvent);
+    const docRef = await adminDb.collection("events").add(eventData);
 
-    return NextResponse.json({ success: true, eventId: docRef.id });
+    return NextResponse.json({ 
+      success: true, 
+      event_id: docRef.id,
+      message: "Cita agendada correctamente" 
+    });
+
   } catch (error) {
-    console.error("Error en add-event:", error);
+    console.error("Error al crear evento:", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
