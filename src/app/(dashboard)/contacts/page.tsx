@@ -75,7 +75,10 @@ export default function ContactsPage() {
       // Sincronizar el nombre con el Chat asociado si existe (para reflejar en el Sidebar instantáneamente)
       try {
         const { setDoc } = await import("firebase/firestore");
-        await setDoc(doc(db, "chats", finalPhone), { user_name: name, phone_number: finalPhone }, { merge: true });
+        await setDoc(doc(db, "chats", finalPhone), { 
+          real_name: name, 
+          phone_number: finalPhone 
+        }, { merge: true });
       } catch (e) {
         console.error("No se pudo sincronizar el chat", e);
       }
@@ -135,7 +138,7 @@ export default function ContactsPage() {
             <table className="w-full text-left text-sm text-foreground">
               <thead className="bg-muted/50 border-b border-border">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-foreground">Nombre</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Nombre Completo</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Teléfono</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Email</th>
                   <th className="px-6 py-4 font-semibold text-foreground text-right">Acciones</th>
@@ -210,7 +213,7 @@ export default function ContactsPage() {
             </h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Nombre</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Nombre Completo</label>
                 <input
                   required
                   type="text"

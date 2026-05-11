@@ -45,9 +45,23 @@ export async function POST(req: Request) {
 
     await adminDb.collection("leads").doc(leadId).update(updateData);
 
+    // Sincronizar con el chat si existe
+    if (finalName || email) {
+      const chatUpdate: any = {};
+      if (finalName) chatUpdate.real_name = finalName;
+      
+      const phoneToSearch = (await adminDb.collection("leads").doc(leadId).get()).data()?.phone_number;
+      if (phoneToSearch) {
+        const chatSnap = await adminDb.collection("chats").where("phone_number", "==", phoneToSearch).limit(1).get();
+        if (!chatSnap.empty) {
+          await adminDb.collection("chats").doc(chatSnap.docs[0].id).update(chatUpdate);
+        }
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
-      message: "Contacto actualizado correctamente",
+      message: "Contacto y Chat actualizados correctamente",
       leadId 
     });
 

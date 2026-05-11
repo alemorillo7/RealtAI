@@ -28,7 +28,9 @@ export default function ChatWindow({ chatId }: Props) {
     // Escuchar el documento principal del chat para obtener el nombre
     const unsubChat = onSnapshot(doc(db, "chats", chatId), (docSnap) => {
       if (docSnap.exists()) {
-        setChatName(docSnap.data().user_name || chatId);
+        const data = docSnap.data();
+        setChatInfo(data as Chat);
+        setChatName(data.real_name || data.user_name || chatId);
       }
     });
 
