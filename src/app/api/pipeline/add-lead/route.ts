@@ -34,8 +34,10 @@ export async function POST(req: Request) {
 
     if (!existingLeads.empty) {
       const leadId = existingLeads.docs[0].id;
+      const currentData = existingLeads.docs[0].data();
+      
       await adminDb.collection("leads").doc(leadId).update({
-        name,
+        user_name: name, // Actualizamos el Nick Name por si lo cambió en WhatsApp
         status: finalStatus,
         updated_at: admin.firestore.FieldValue.serverTimestamp()
       });
@@ -44,7 +46,8 @@ export async function POST(req: Request) {
 
     // 3. Crear nuevo lead
     const newLead = {
-      name,
+      name: phone_number, // Por defecto el nombre completo es el teléfono
+      user_name: name,    // El nombre que viene de WhatsApp va al Nick Name
       phone_number,
       status: finalStatus,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
