@@ -4,77 +4,77 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    let { phone_number } = await req.json();
+    const { lead_id, phone_number, status } = await req.json();
 
-    if (!phone_number) {
-      return NextResponse.json({ error: "Falta phone_number" }, { status: 400 });
+    if (!status) {
+      return NextResponse.json({ error: "Falta el campo 'status'" }, { status: 400 });
     }
 
-    if (!phone_number.startsWith('+')) {
-      phone_number = '+' + phone_number;
+    if (!lead_id && !phone_number) {
+      return NextResponse.json({ error: "Falta 'lead_id' o 'phone_number'" }, { status: 400 });
     }
 
-    // 1. Buscar el lead actual
-    const leadSnap = await adminDb.collection("leads")
-      .where("phone_number", "==", phone_number)
-      .limit(1)
-      .get();
-
-    if (leadSnap.empty) {
-      return NextResponse.json({ error: "Lead no encontrado en el pipeline" }, { status: 404 });
-    }
-
-    const leadDoc = leadSnap.docs[0];
-    const currentLeadData = leadDoc.data();
-    const currentStatus = currentLeadData.status;
-
-    // 2. Obtener todas las etapas configuradas ordenadas por 'order'
-    const stagesSnap = await adminDb.collection("pipeline_configs")
-      .orderBy("order", "asc")
-      .get();
-
-    const stages = stagesSnap.docs.map(doc => ({
-      fireId: doc.id,
-      ...doc.data()
-    })) as any[];
-
-    if (stages.length === 0) {
-      return NextResponse.json({ error: "No hay etapas configuradas en el pipeline" }, { status: 500 });
-    }
-
-    // 3. Encontrar el índice de la etapa actual
-    const currentIndex = stages.findIndex(s => s.id === currentStatus);
+    // 1. Buscar la etapa correcta
+    const stagesSnap = await adminDb.collection("pipeline_configs").get();
+    const stages = stagesSnap.docs.map(d => ({ id: d.data().id, label: d.data().label }));
     
-    if (currentIndex === -1) {
-        // Si por alguna razón el status no coincide con una etapa válida, lo movemos a la primera
-        await adminDb.collection("leads").doc(leadDoc.id).update({
-            status: stages[0].id,
-            updated_at: admin.firestore.FieldValue.serverTimestamp()
-        });
-        return NextResponse.json({ success: true, message: "Lead reseteado a la primera etapa", nextStage: stages[0].label });
+    const matchedStage = stages.find(s => 
+      s.label.toLowerCase() === status.toLowerCase() || 
+      s.id.toLowerCase() === status.toLowerCase()
+    );
+
+    if (!matchedStage) {
+      return NextResponse.json({ 
+        error: `Etapa '${status}' no encontrada`, 
+        available_stages: stages.map(s => s.label) 
+      }, { status: 404 });
     }
 
-    // 4. Mover a la siguiente etapa si existe
-    if (currentIndex < stages.length - 1) {
-      const nextStage = stages[currentIndex + 1];
-      
-      await adminDb.collection("leads").doc(leadDoc.id).update({
-        status: nextStage.id,
-        updated_at: admin.firestore.FieldValue.serverTimestamp()
-      });
+    const finalStatusId = matchedStage.id;
 
-      return NextResponse.json({ 
-        success: true, 
-        previous: stages[currentIndex].label,
-        next: nextStage.label 
-      });
-    } else {
-      return NextResponse.json({ 
-        success: true, 
-        message: "El lead ya está en la última etapa", 
-        current: stages[currentIndex].label 
-      });
+    // 2. Localizar el lead en leads o Leads
+    let foundDoc: any = null;
+    let foundCollection = "";
+
+    if (lead_id) {
+      for (const col of ["leads", "Leads"]) {
+        const docRef = adminDb.collection(col).doc(lead_id);
+        const snap = await docRef.get();
+        if (snap.exists) {
+          foundDoc = docRef;
+          foundCollection = col;
+          break;
+        }
+      }
     }
+
+    if (!foundDoc && phone_number) {
+      const cleanPhone = phone_number.startsWith('+') ? phone_number : '+' + phone_number;
+      for (const col of ["leads", "Leads"]) {
+        const snap = await adminDb.collection(col).where("phone_number", "==", cleanPhone).limit(1).get();
+        if (!snap.empty) {
+          foundDoc = snap.docs[0].ref;
+          foundCollection = col;
+          break;
+        }
+      }
+    }
+
+    if (!foundDoc) {
+      return NextResponse.json({ error: "Lead no encontrado" }, { status: 404 });
+    }
+
+    // 3. Actualizar la etapa
+    await foundDoc.update({
+      status: finalStatusId,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Lead movido a '${matchedStage.label}'`,
+      collection: foundCollection
+    });
 
   } catch (error) {
     console.error("Error en move-lead:", error);

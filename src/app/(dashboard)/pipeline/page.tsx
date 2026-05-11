@@ -271,24 +271,33 @@ export default function PipelinePage() {
                 {colLeads.map((lead) => (
                   <div key={lead.id} className="bg-card border border-border p-4 rounded-xl hover:border-primary/40 transition-all cursor-grab active:cursor-grabbing group shadow-sm">
                     <div className="flex items-start gap-3 mb-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-xs font-bold text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        {lead.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{lead.name}</h4>
-                        <div className="flex flex-col gap-1 mt-0.5">
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Phone className="w-3 h-3" />
-                            <span>{lead.phone_number}</span>
-                          </div>
-                          {lead.email && (
-                            <div className="flex items-center gap-1.5 text-[10px] text-primary/70">
-                              <MessageSquare className="w-3 h-3" />
-                              <span className="truncate">{lead.email}</span>
+                      {(() => {
+                        const displayName = (lead.name.startsWith('+') || lead.name === "-") && lead.user_name 
+                          ? lead.user_name 
+                          : lead.name;
+                        return (
+                          <>
+                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-xs font-bold text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                              {displayName.charAt(0).toUpperCase()}
                             </div>
-                          )}
-                        </div>
-                      </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm truncate">{displayName}</h4>
+                              <div className="flex flex-col gap-1 mt-0.5">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Phone className="w-3 h-3" />
+                                  <span>{lead.phone_number}</span>
+                                </div>
+                                {lead.email && (
+                                  <div className="flex items-center gap-1.5 text-[10px] text-primary/70">
+                                    <MessageSquare className="w-3 h-3" />
+                                    <span className="truncate">{lead.email}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     
                     {lead.description && (
