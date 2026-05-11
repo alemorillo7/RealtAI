@@ -14,21 +14,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Falta lead_id o phone_number" }, { status: 400 });
     }
 
-    // Si no tenemos ID, buscamos por teléfono
+    // Si no tenemos ID, buscamos por teléfono en todas las colecciones
     if (!leadId && phone_number) {
-      const cleanPhone = String(phone_number).replace(/\D/g, ''); // Deja solo números
+      const cleanPhone = String(phone_number).replace(/\D/g, '');
       
-      // Buscamos leads y comparamos el teléfono limpio
+      // 1. Buscar en Leads
       const leadsSnap = await adminDb.collection("leads").get();
-      const match = leadsSnap.docs.find(doc => {
-        const dbPhone = String(doc.data().phone_number || "").replace(/\D/g, '');
-        return dbPhone === cleanPhone;
-      });
+      let match = leadsSnap.docs.find(doc => 
+        String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
+      );
+
+      let collectionName = "leads";
+
+      // 2. Si no está en Leads, buscar en Contactos
+      if (!match) {
+        const contactsSnap = await adminDb.collection("contacts").get();
+        match = contactsSnap.docs.find(doc => 
+          String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
+        );
+        collectionName = "contacts";
+      }
 
       if (!match) {
-        return NextResponse.json({ error: "Contacto no encontrado por teléfono: " + phone_number }, { status: 404 });
+        return NextResponse.json({ error: "Contacto no encontrado en ninguna lista: " + phone_number }, { status: 404 });
       }
+      
       leadId = match.id;
+      // Guardamos la colección donde lo encontramos para la actualización
+      (global as any).targetCollection = collectionName;
     }
 
     if (!leadId) {
@@ -43,7 +56,8 @@ export async function POST(req: Request) {
     if (email) updateData.email = email;
     if (status) updateData.status = status;
 
-    await adminDb.collection("leads").doc(leadId).update(updateData);
+    const collectionToUpdate = (global as any).targetCollection || "leads";
+    await adminDb.collection(collectionToUpdate).doc(leadId).update(updateData);
 
     // Sincronizar con el chat si existe
     if (finalName || email) {
