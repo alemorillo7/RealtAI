@@ -3,7 +3,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    let { phone_number, agent_active, tags, tag } = await req.json();
+    let { phone_number, agent_active, bot_active, tags, tag } = await req.json();
 
     if (!phone_number) {
       return NextResponse.json({ error: "Falta phone_number" }, { status: 400 });
