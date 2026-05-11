@@ -90,17 +90,17 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
                   </p>
                   <div
                     className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border whitespace-nowrap ${
-                      chat.agent_active
+                      (chat.agent_active === true || chat.bot_active === true)
                         ? "bg-green-500/10 text-green-500 border-green-500/20"
                         : "bg-red-500/10 text-red-500 border-red-500/20"
                     }`}
                   >
                     <div
                       className={`w-1.5 h-1.5 rounded-full ${
-                        chat.agent_active ? "bg-green-500" : "bg-red-500"
+                        (chat.agent_active === true || chat.bot_active === true) ? "bg-green-500" : "bg-red-500"
                       }`}
                     />
-                    {chat.agent_active ? "Bot ON" : "Bot OFF"}
+                    {(chat.agent_active === true || chat.bot_active === true) ? "Bot ON" : "Bot OFF"}
                   </div>
                 </div>
                 {chat.tags && chat.tags.length > 0 && (

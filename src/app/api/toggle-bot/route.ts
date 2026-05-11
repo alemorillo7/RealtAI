@@ -9,9 +9,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Falta phone_number" }, { status: 400 });
     }
 
-    // 1. Preparar los datos de actualización
+    // 1. Preparar los datos de actualización (soportando booleano o string de n8n)
     const updateData: any = {};
-    const isActive = typeof agent_active === "boolean" ? agent_active : (typeof bot_active === "boolean" ? bot_active : null);
+    
+    const parseStatus = (val: any) => {
+      if (typeof val === "boolean") return val;
+      if (val === "true" || val === "on" || val === 1) return true;
+      if (val === "false" || val === "off" || val === 0) return false;
+      return null;
+    };
+
+    const isActive = parseStatus(agent_active) !== null 
+      ? parseStatus(agent_active) 
+      : parseStatus(bot_active);
     
     if (isActive !== null) {
       updateData.agent_active = isActive;
