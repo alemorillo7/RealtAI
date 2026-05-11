@@ -15,41 +15,50 @@ export async function POST(req: Request) {
     }
 
     const timestamp = new Date();
+    const cleanWhatsAppName = user_name || "";
 
     // 1.5 Verificar si existe en Contactos, si no, auto-crearlo
     const contactsRef = adminDb.collection("contacts");
     const contactSnapshot = await contactsRef.where("phone_number", "==", phone_number).limit(1).get();
     
-    let finalUserName = user_name || phone_number;
+    let dbRealName = "";
 
     if (contactSnapshot.empty) {
+      // Si es nuevo, el nombre completo es el teléfono y el nick es el de WhatsApp
       await contactsRef.add({
         phone_number,
-        name: finalUserName,
+        name: phone_number,
+        user_name: cleanWhatsAppName,
         created_at: timestamp,
       });
     } else {
-      // Si ya exite el contacto, usamos el nombre que tenga guardado en el CRM
-      finalUserName = contactSnapshot.docs[0].data().name || finalUserName;
+      // Si ya existe, recuperamos el nombre real que pusimos en el CRM
+      dbRealName = contactSnapshot.docs[0].data().name || "";
+      // Aprovechamos para actualizar el nick por si cambió en WhatsApp
+      await contactSnapshot.docs[0].ref.update({
+        user_name: cleanWhatsAppName
+      });
     }
 
     // 1. Guardar o actualizar el Chat
     const chatRef = adminDb.collection("chats").doc(phone_number);
     const chatSnap = await chatRef.get();
 
+    const chatData: any = {
+      phone_number,
+      user_name: cleanWhatsAppName, // Este sigue siendo el nombre original para compatibilidad
+      real_name: dbRealName,        // Este es el que el dashboard prioriza
+      updated_at: timestamp,
+    };
+
     if (!chatSnap.exists) {
       await chatRef.set({
-        phone_number,
-        user_name: finalUserName,
-        agent_active: true, // Bot is active by default
-        updated_at: timestamp,
+        ...chatData,
+        agent_active: true,
         tags: [],
       });
     } else {
-      await chatRef.update({
-        updated_at: timestamp,
-        user_name: finalUserName,
-      });
+      await chatRef.update(chatData);
     }
 
     // 2. Insertar el Mensaje
