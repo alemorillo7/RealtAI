@@ -4,7 +4,7 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    let { lead_id, phone_number, name, full_name, email, status } = await req.json();
+    let { lead_id, phone_number, name, full_name, email, status, user_name, nickname } = await req.json();
 
     // Prioridad al lead_id si existe
     let leadId = lead_id;
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       if (finalName) updateData.name = finalName;
       if (email) updateData.email = email;
       if (status) updateData.status = status;
+      if (user_name) updateData.user_name = user_name;
 
       await adminDb.collection(foundCollection).doc(leadId).update(updateData);
     } else if (leadId) {

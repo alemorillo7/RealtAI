@@ -15,6 +15,7 @@ export default function ContactsPage() {
 
   // Form states
   const [name, setName] = useState("");
+  const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
@@ -33,6 +34,7 @@ export default function ContactsPage() {
 
   const resetForm = () => {
     setName("");
+    setNickname("");
     setPhone("");
     setEmail("");
     setNotes("");
@@ -43,6 +45,7 @@ export default function ContactsPage() {
   const handleOpenEdit = (contact: Contact) => {
     setEditingContact(contact);
     setName(contact.name);
+    setNickname(contact.user_name || "");
     setPhone(contact.phone_number);
     setEmail(contact.email || "");
     setNotes(contact.notes || "");
@@ -58,6 +61,7 @@ export default function ContactsPage() {
       if (editingContact) {
         await updateDoc(doc(db, "contacts", editingContact.id), {
           name,
+          user_name: nickname,
           phone_number: finalPhone,
           email,
           notes,
@@ -65,6 +69,7 @@ export default function ContactsPage() {
       } else {
         await addDoc(collection(db, "contacts"), {
           name,
+          user_name: nickname,
           phone_number: finalPhone,
           email,
           notes,
@@ -139,6 +144,7 @@ export default function ContactsPage() {
               <thead className="bg-muted/50 border-b border-border">
                 <tr>
                   <th className="px-6 py-4 font-semibold text-foreground">Nombre Completo</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Nick Name</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Teléfono</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Email</th>
                   <th className="px-6 py-4 font-semibold text-foreground text-right">Acciones</th>
@@ -148,6 +154,7 @@ export default function ContactsPage() {
                 {currentContacts.map((contact) => (
                   <tr key={contact.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-foreground">{contact.name}</td>
+                    <td className="px-6 py-4 text-primary/70 italic text-xs">{contact.user_name || '-'}</td>
                     <td className="px-6 py-4">{contact.phone_number}</td>
                     <td className="px-6 py-4 text-muted-foreground">{contact.email || '-'}</td>
                     <td className="px-6 py-4 flex justify-end gap-3">
@@ -219,6 +226,15 @@ export default function ContactsPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Nick Name (WhatsApp)</label>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
                   className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
