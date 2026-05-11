@@ -30,7 +30,7 @@ export default function ChatWindow({ chatId }: Props) {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setChatInfo(data as Chat);
-        setChatName(data.real_name || data.user_name || chatId);
+        setChatName(data.real_name && data.real_name !== "-" ? data.real_name : (data.user_name || chatId));
       }
     });
 

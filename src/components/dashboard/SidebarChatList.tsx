@@ -73,7 +73,7 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline mb-1">
                   <h3 className="text-foreground font-bold truncate">
-                    {chat.real_name || chat.user_name || chat.phone_number}
+                    {chat.real_name && chat.real_name !== "-" ? chat.real_name : (chat.user_name || chat.phone_number)}
                   </h3>
                   {chat.updated_at && (
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2 opacity-70">
