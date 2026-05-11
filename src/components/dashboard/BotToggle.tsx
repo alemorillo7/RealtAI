@@ -16,7 +16,9 @@ export default function BotToggle({ chatId }: Props) {
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, "chats", chatId), (docSnap) => {
       if (docSnap.exists()) {
-        setIsBotActive(docSnap.data().agent_active);
+        const data = docSnap.data();
+        // Soportar ambos nombres de campo para sincronización con n8n
+        setIsBotActive(data.agent_active === true || data.bot_active === true);
       }
     });
     return () => unsubscribe();

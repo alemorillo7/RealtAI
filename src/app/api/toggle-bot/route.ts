@@ -14,8 +14,13 @@ export async function POST(req: Request) {
     }
 
     const updateData: any = {};
-    if (typeof agent_active === "boolean") {
-      updateData.agent_active = agent_active;
+    
+    // Soportar tanto agent_active como bot_active (alias para n8n)
+    const isActive = typeof agent_active === "boolean" ? agent_active : (typeof bot_active === "boolean" ? bot_active : null);
+    
+    if (isActive !== null) {
+      updateData.agent_active = isActive;
+      updateData.bot_active = isActive; // Guardamos ambos para mantener compatibilidad
     }
 
     const chatRef = adminDb.collection("chats").doc(phone_number);
