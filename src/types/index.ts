@@ -3,6 +3,7 @@ export interface Chat {
   user_name?: string;
   real_name?: string;
   agent_active: boolean;
+  bot_active?: boolean;
   updated_at: FirebaseFirestore.Timestamp | any;
   tags: string[];
   contact_id?: string;
