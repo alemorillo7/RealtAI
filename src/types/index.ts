@@ -1,6 +1,7 @@
 export interface Chat {
   phone_number: string;
   user_name?: string;
+  real_name?: string;
   agent_active: boolean;
   updated_at: FirebaseFirestore.Timestamp | any;
   tags: string[];
