@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     }
 
     // Actualizar el documento encontrado (o crear el de con + si no existe nada)
+    console.log("DEBUG TOGGLE BOT WRITING:", { docId: chatRef.id, updateData });
     await chatRef.set(updateData, { merge: true });
 
     return NextResponse.json({ 
