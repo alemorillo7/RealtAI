@@ -4,15 +4,32 @@ import * as admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { datetime, title, phone_number, description, location } = await req.json();
+    const body = await req.json();
+    console.log("DEBUG ADD EVENT BODY:", body);
+    
+    const { datetime, title, phone_number, description, location } = body;
 
     if (!datetime || !title) {
       return NextResponse.json({ error: "Faltan campos obligatorios: datetime, title" }, { status: 400 });
     }
 
-    // Extraer date (YYYY-MM-DD) y time (HH:mm) del string ISO
-    const date = datetime.split('T')[0];
-    const time = datetime.split('T')[1].substring(0, 5);
+    // Extraer date y time de forma segura
+    let date = "";
+    let time = "";
+
+    try {
+      if (datetime.includes('T')) {
+        date = datetime.split('T')[0];
+        time = datetime.split('T')[1].substring(0, 5);
+      } else {
+        // Soporte para formato "YYYY-MM-DD HH:mm:ss"
+        const parts = datetime.split(' ');
+        date = parts[0];
+        time = parts[1] ? parts[1].substring(0, 5) : "00:00";
+      }
+    } catch (e) {
+      return NextResponse.json({ error: "Formato de datetime inválido. Use YYYY-MM-DDTHH:mm:ss" }, { status: 400 });
+    }
 
     // 1. Crear el evento en la colección 'events' (la que usa el calendario del CRM)
     const eventData = {
