@@ -44,7 +44,7 @@ export default function ContactsPage() {
 
   const handleOpenEdit = (contact: Contact) => {
     setEditingContact(contact);
-    setName(contact.name);
+    setName(contact.name !== "-" ? contact.name : "");
     setNickname(contact.user_name || "");
     setPhone(contact.phone_number);
     setEmail(contact.email || "");
@@ -59,7 +59,7 @@ export default function ContactsPage() {
       if (!finalPhone.startsWith('+')) finalPhone = '+' + finalPhone;
 
       const contactData: any = {
-        name,
+        name: name.trim() ? name : "-",
         phone_number: finalPhone,
         email,
         notes,
@@ -103,7 +103,7 @@ export default function ContactsPage() {
   };
 
   const filteredContacts = contacts.filter((c) =>
-    (c.name + c.phone_number + c.email).toLowerCase().includes(searchTerm.toLowerCase())
+    ((c.name !== "-" ? c.name : "") + " " + (c.user_name || "") + " " + c.phone_number + " " + (c.email || "")).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const itemsPerPage = 15;
@@ -155,7 +155,9 @@ export default function ContactsPage() {
               <tbody>
                 {currentContacts.map((contact) => (
                   <tr key={contact.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-foreground">{contact.name}</td>
+                    <td className="px-6 py-4 font-medium text-foreground">
+                      {contact.name && contact.name !== "-" ? contact.name : (contact.user_name || contact.phone_number)}
+                    </td>
                     <td className="px-6 py-4 text-primary/70 italic text-xs">{contact.user_name || '-'}</td>
                     <td className="px-6 py-4">{contact.phone_number}</td>
                     <td className="px-6 py-4 text-muted-foreground">{contact.email || '-'}</td>
