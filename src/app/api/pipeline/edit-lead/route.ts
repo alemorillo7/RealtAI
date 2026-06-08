@@ -18,51 +18,72 @@ export async function POST(req: Request) {
     if (!leadId && phone_number) {
       const cleanPhone = String(phone_number).replace(/\D/g, '');
       
-      const collectionsToSearch = ["leads", "Leads", "contacts"];
-      let match = null;
-      let foundCollection = "";
+      const collectionsToUpdate = ["leads", "Leads", "contacts"];
+      let foundAny = false;
+      let phoneToSearch = phone_number;
 
-      for (const colName of collectionsToSearch) {
+      for (const colName of collectionsToUpdate) {
         const snap = await adminDb.collection(colName).get();
-        match = snap.docs.find(doc => 
+        const matches = snap.docs.filter(doc => 
           String(doc.data().phone_number || "").replace(/\D/g, '') === cleanPhone
         );
-        if (match) {
-          foundCollection = colName;
-          break;
+        
+        for (const match of matches) {
+          foundAny = true;
+          phoneToSearch = match.data().phone_number || phoneToSearch;
+          
+          const updateData: any = {
+            updated_at: admin.firestore.FieldValue.serverTimestamp()
+          };
+
+          if (finalName && finalName !== "-") {
+            updateData.name = finalName.trim();
+          }
+          if (email && email.includes("@")) {
+            updateData.email = email.trim();
+          }
+          if (status && (colName === "leads" || colName === "Leads")) {
+            updateData.status = status;
+          }
+          
+          const rawNick = (user_name || nickname || "").toString().trim();
+          if (rawNick && rawNick.length > 1) {
+            updateData.user_name = rawNick;
+          }
+
+          await adminDb.collection(colName).doc(match.id).update(updateData);
         }
       }
 
-      if (!match) {
+      if (!foundAny) {
         return NextResponse.json({ 
           error: "No encontrado en Leads ni Contactos",
           phone_sent: phone_number,
           phone_cleaned: cleanPhone,
-          collections_searched: collectionsToSearch
+          collections_searched: collectionsToUpdate
         }, { status: 404 });
       }
-      
-      leadId = match.id;
-      
-      // Actualizar en la colección encontrada
-      const updateData: any = {
-        updated_at: admin.firestore.FieldValue.serverTimestamp()
-      };
 
-      if (finalName && finalName !== "-") {
-        updateData.name = finalName.trim();
+      // Sync chats using the phone number found
+      if (finalName || email) {
+        const chatUpdate: any = {};
+        if (finalName) chatUpdate.real_name = finalName.trim();
+        
+        const chatSnap = await adminDb.collection("chats").where("phone_number", "==", phoneToSearch).get();
+        if (!chatSnap.empty) {
+          for (const doc of chatSnap.docs) {
+            await adminDb.collection("chats").doc(doc.id).update(chatUpdate);
+          }
+        } else {
+          // Also try direct document access since ID is usually phone_number
+          try {
+            const chatDoc = await adminDb.collection("chats").doc(phoneToSearch).get();
+            if (chatDoc.exists) {
+              await adminDb.collection("chats").doc(phoneToSearch).update(chatUpdate);
+            }
+          } catch(e) {}
+        }
       }
-      if (email && email.includes("@")) {
-        updateData.email = email.trim();
-      }
-      if (status) updateData.status = status;
-      
-      const rawNick = (user_name || nickname || "").toString().trim();
-      if (rawNick && rawNick.length > 1) { // Solo si es un nombre real (más de 1 letra)
-        updateData.user_name = rawNick;
-      }
-
-      await adminDb.collection(foundCollection).doc(leadId).update(updateData);
     } else if (leadId) {
       const updateData: any = {
         updated_at: admin.firestore.FieldValue.serverTimestamp()
@@ -83,18 +104,28 @@ export async function POST(req: Request) {
       }
     }
 
-    // Sincronizar con el chat si existe
-    if (finalName || email) {
+    // Sincronizar con el chat si existe (only if leadId was provided, since phone logic is above)
+    if (leadId && (finalName || email)) {
       const chatUpdate: any = {};
-      if (finalName) chatUpdate.real_name = finalName;
+      if (finalName) chatUpdate.real_name = finalName.trim();
       
-      const phoneToSearch = (await adminDb.collection("leads").doc(leadId).get()).data()?.phone_number;
-      if (phoneToSearch) {
-        const chatSnap = await adminDb.collection("chats").where("phone_number", "==", phoneToSearch).limit(1).get();
-        if (!chatSnap.empty) {
-          await adminDb.collection("chats").doc(chatSnap.docs[0].id).update(chatUpdate);
+      try {
+        const leadDoc = await adminDb.collection("leads").doc(leadId).get();
+        const phoneToSearch = leadDoc.data()?.phone_number;
+        if (phoneToSearch) {
+          const chatSnap = await adminDb.collection("chats").where("phone_number", "==", phoneToSearch).get();
+          if (!chatSnap.empty) {
+            for (const doc of chatSnap.docs) {
+              await adminDb.collection("chats").doc(doc.id).update(chatUpdate);
+            }
+          } else {
+             const chatDoc = await adminDb.collection("chats").doc(phoneToSearch).get();
+             if (chatDoc.exists) {
+               await adminDb.collection("chats").doc(phoneToSearch).update(chatUpdate);
+             }
+          }
         }
-      }
+      } catch(e) {}
     }
 
     return NextResponse.json({ 
