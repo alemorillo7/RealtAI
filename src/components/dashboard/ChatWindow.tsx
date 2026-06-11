@@ -16,6 +16,17 @@ interface Props {
   chatId: string;
 }
 
+function toJsDate(value: unknown): Date {
+  if (!value) return new Date();
+  if (value instanceof Date) return value;
+  if (typeof value === "object" && value !== null && "toDate" in value && typeof value.toDate === "function") {
+    return value.toDate();
+  }
+
+  const parsedDate = new Date(String(value));
+  return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+}
+
 export default function ChatWindow({ chatId }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatInfo, setChatInfo] = useState<Chat | null>(null);
@@ -23,6 +34,12 @@ export default function ChatWindow({ chatId }: Props) {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  function scrollToBottom() {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }
 
   useEffect(() => {
     // Escuchar el documento principal del chat para obtener el nombre
@@ -52,12 +69,6 @@ export default function ChatWindow({ chatId }: Props) {
 
     return () => { unsubscribe(); unsubChat(); };
   }, [chatId]);
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
 
   const handleDeleteChat = async () => {
     if (confirm("¿Estás seguro de que deseas eliminar permanentemente esta conversación? (El contacto seguirá guardado en tu libreta).")) {
@@ -132,9 +143,9 @@ export default function ChatWindow({ chatId }: Props) {
           const isAgent = msg.sender === "agent";
           
           // Lógica para el separador de fecha
-          const msgDate = msg.created_at ? msg.created_at.toDate() : new Date();
+          const msgDate = toJsDate(msg.created_at);
           const prevMsg = index > 0 ? messages[index - 1] : null;
-          const prevDate = prevMsg?.created_at ? prevMsg.created_at.toDate() : null;
+          const prevDate = prevMsg?.created_at ? toJsDate(prevMsg.created_at) : null;
           
           const showDateDivider = !prevDate || msgDate.toDateString() !== prevDate.toDateString();
 
@@ -175,7 +186,7 @@ export default function ChatWindow({ chatId }: Props) {
                       {renderMessageWithLinks(msg.message)}
                     </p>
                   )}
-                  {msg.created_at && (
+                  {Boolean(msg.created_at) && (
                     <p
                       className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 ${
                         isAgent ? "text-white/80" : "text-muted-foreground"
