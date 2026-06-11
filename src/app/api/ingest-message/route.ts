@@ -3,7 +3,11 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
-    let { phone_number, user_name, message, sender = "user" } = await req.json();
+    const body = await req.json();
+    let phone_number = body.phone_number as string;
+    const user_name = body.user_name as string | undefined;
+    const message = body.message as string;
+    const sender = (body.sender as string | undefined) || "user";
 
     if (!phone_number || !message) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
@@ -25,7 +29,9 @@ export async function POST(req: Request) {
 
     if (contactSnapshot.empty) {
       // Si es nuevo, dejamos el nombre completo vacío (-) y el nick es el de WhatsApp
-      await contactsRef.add({
+      const newContactRef = contactsRef.doc();
+      await newContactRef.set({
+        profile_id: newContactRef.id,
         phone_number,
         name: "-", 
         user_name: cleanWhatsAppName,
@@ -33,10 +39,18 @@ export async function POST(req: Request) {
       });
     } else {
       // Si ya existe, recuperamos el nombre real que pusimos en el CRM
-      dbRealName = contactSnapshot.docs[0].data().name || "";
+      const existingContact = contactSnapshot.docs[0];
+      dbRealName = existingContact.data().name || "";
+
+      if (!existingContact.data().profile_id) {
+        await existingContact.ref.update({
+          profile_id: existingContact.id
+        });
+      }
+
       // SOLO actualizamos el nick si viene un nombre nuevo y no está vacío
       if (cleanWhatsAppName && sender === "user") {
-        await contactSnapshot.docs[0].ref.update({
+        await existingContact.ref.update({
           user_name: cleanWhatsAppName
         });
       }
@@ -46,7 +60,12 @@ export async function POST(req: Request) {
     const chatRef = adminDb.collection("chats").doc(phone_number);
     const chatSnap = await chatRef.get();
 
-    const chatData: any = {
+    const chatData: {
+      phone_number: string;
+      updated_at: Date;
+      real_name: string;
+      user_name?: string;
+    } = {
       phone_number,
       updated_at: timestamp,
       real_name: dbRealName,

@@ -1,13 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Contact } from "@/types";
-import { Search, Plus, Edit2, Trash2 } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, ExternalLink } from "lucide-react";
+
+interface ContactEnrichment {
+  lead_id: string;
+  phone: string | null;
+  email: string | null;
+  profile_id: string | null;
+  preferred_language: string | null;
+  current_state: string | null;
+  lead_kind: string | null;
+  hubspot_contact_id: string | null;
+  source_channel: string | null;
+  current_owner_type: string | null;
+  current_owner_id: string | null;
+  first_seen_at: string | null;
+  last_seen_at: string | null;
+  last_inbound_at: string | null;
+  last_outbound_at: string | null;
+  operation_type: string | null;
+  client_type: string | null;
+  readiness_score: string | null;
+  completeness_pct: string | null;
+}
+
+function formatDate(value: string | null) {
+  return value ? new Date(value).toLocaleString("es-ES") : "-";
+}
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [enrichedContacts, setEnrichedContacts] = useState<Record<string, ContactEnrichment>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +48,14 @@ export default function ContactsPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
+  type ContactFormData = {
+    name: string;
+    phone_number: string;
+    email: string;
+    notes: string;
+    user_name?: string;
+  };
+
   useEffect(() => {
     const q = query(collection(db, "contacts"), orderBy("created_at", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -31,6 +67,43 @@ export default function ContactsPage() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const loadEnrichment = async () => {
+      if (contacts.length === 0) {
+        setEnrichedContacts({});
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/contacts-enrichment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contacts: contacts.map((contact) => ({
+              id: contact.id,
+              phone_number: contact.phone_number,
+              email: contact.email || "",
+            })),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "No se pudo enriquecer la lista de contactos");
+        }
+
+        setEnrichedContacts(data.matches || {});
+      } catch (error) {
+        console.error("Error al enriquecer contactos", error);
+      }
+    };
+
+    loadEnrichment();
+  }, [contacts]);
 
   const resetForm = () => {
     setName("");
@@ -58,7 +131,7 @@ export default function ContactsPage() {
       let finalPhone = phone.trim();
       if (!finalPhone.startsWith('+')) finalPhone = '+' + finalPhone;
 
-      const contactData: any = {
+      const contactData: ContactFormData = {
         name: name.trim() ? name : "-",
         phone_number: finalPhone,
         email,
@@ -71,10 +144,15 @@ export default function ContactsPage() {
       }
 
       if (editingContact) {
-        await updateDoc(doc(db, "contacts", editingContact.id), contactData);
-      } else {
-        await addDoc(collection(db, "contacts"), {
+        await updateDoc(doc(db, "contacts", editingContact.id), {
           ...contactData,
+          profile_id: editingContact.profile_id || editingContact.id,
+        });
+      } else {
+        const newContactRef = doc(collection(db, "contacts"));
+        await setDoc(newContactRef, {
+          ...contactData,
+          profile_id: newContactRef.id,
           created_at: new Date(),
         });
       }
@@ -102,8 +180,46 @@ export default function ContactsPage() {
     }
   };
 
-  const filteredContacts = contacts.filter((c) =>
-    ((c.name !== "-" ? c.name : "") + " " + (c.user_name || "") + " " + c.phone_number + " " + (c.email || "")).toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredContacts = useMemo(
+    () =>
+      contacts.filter((contact) => {
+        const enrichment = enrichedContacts[contact.id];
+
+        return (
+          (
+            (contact.profile_id || contact.id) +
+            " " +
+            (contact.name !== "-" ? contact.name : "") +
+            " " +
+            (contact.user_name || "") +
+            " " +
+            contact.phone_number +
+            " " +
+            (contact.email || "") +
+            " " +
+            (enrichment?.lead_id || "") +
+            " " +
+            (enrichment?.profile_id || "") +
+            " " +
+            (enrichment?.current_state || "") +
+            " " +
+            (enrichment?.lead_kind || "") +
+            " " +
+            (enrichment?.preferred_language || "") +
+            " " +
+            (enrichment?.hubspot_contact_id || "") +
+            " " +
+            (enrichment?.source_channel || "") +
+            " " +
+            (enrichment?.operation_type || "") +
+            " " +
+            (enrichment?.client_type || "")
+          )
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        );
+      }),
+    [contacts, enrichedContacts, searchTerm]
   );
 
   const itemsPerPage = 15;
@@ -133,7 +249,7 @@ export default function ContactsPage() {
           </div>
           <input
             type="text"
-            placeholder="Buscar por nombre, teléfono o email..."
+            placeholder="Buscar por profile ID, nombre, teléfono o email..."
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300 shadow-inner"
@@ -142,44 +258,86 @@ export default function ContactsPage() {
 
         <div className="bg-card rounded-xl border border-border shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-foreground">
+            <table className="w-full min-w-[2000px] text-left text-sm text-foreground">
               <thead className="bg-muted/50 border-b border-border">
                 <tr>
+                  <th className="px-6 py-4 font-semibold text-foreground">Profile ID</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Nombre Completo</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Nick Name</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Teléfono</th>
                   <th className="px-6 py-4 font-semibold text-foreground">Email</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Lead CRM</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Perfil CRM</th>
+                  <th className="px-6 py-4 font-semibold text-foreground">Actividad</th>
                   <th className="px-6 py-4 font-semibold text-foreground text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {currentContacts.map((contact) => (
-                  <tr key={contact.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <tr key={contact.id} className="border-b border-border hover:bg-muted/50 transition-colors align-top">
+                    <td className="px-6 py-4 font-mono text-xs text-muted-foreground">{contact.profile_id || contact.id}</td>
                     <td className="px-6 py-4 font-medium text-foreground">
                       {contact.name && contact.name !== "-" ? contact.name : (contact.user_name || contact.phone_number)}
                     </td>
                     <td className="px-6 py-4 text-primary/70 italic text-xs">{contact.user_name || '-'}</td>
                     <td className="px-6 py-4">{contact.phone_number}</td>
                     <td className="px-6 py-4 text-muted-foreground">{contact.email || '-'}</td>
-                    <td className="px-6 py-4 flex justify-end gap-3">
-                      <button
-                        onClick={() => handleOpenEdit(contact)}
-                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(contact.id)}
-                        className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <td className="px-6 py-4 text-xs">
+                      <div className="font-mono text-muted-foreground">{enrichedContacts[contact.id]?.lead_id || "-"}</div>
+                      <div className="mt-2">Idioma: {enrichedContacts[contact.id]?.preferred_language || "-"}</div>
+                      <div>Estado: {enrichedContacts[contact.id]?.current_state || "-"}</div>
+                      <div>Tipo: {enrichedContacts[contact.id]?.lead_kind || "-"}</div>
+                      <div>Hubspot: {enrichedContacts[contact.id]?.hubspot_contact_id || "-"}</div>
+                      <div>Canal: {enrichedContacts[contact.id]?.source_channel || "-"}</div>
+                      <div className="mt-2 text-muted-foreground">
+                        Owner: {enrichedContacts[contact.id]?.current_owner_type || "-"} / {enrichedContacts[contact.id]?.current_owner_id || "-"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      <div className="font-mono text-muted-foreground">{enrichedContacts[contact.id]?.profile_id || "-"}</div>
+                      <div className="mt-2">Operacion: {enrichedContacts[contact.id]?.operation_type || "-"}</div>
+                      <div>Cliente: {enrichedContacts[contact.id]?.client_type || "-"}</div>
+                      <div>Readiness: {enrichedContacts[contact.id]?.readiness_score || "-"}</div>
+                      <div>Completeness: {enrichedContacts[contact.id]?.completeness_pct || "-"}</div>
+                    </td>
+                    <td className="px-6 py-4 text-xs whitespace-nowrap">
+                      <div>First seen: {formatDate(enrichedContacts[contact.id]?.first_seen_at || null)}</div>
+                      <div>Last seen: {formatDate(enrichedContacts[contact.id]?.last_seen_at || null)}</div>
+                      <div>Inbound: {formatDate(enrichedContacts[contact.id]?.last_inbound_at || null)}</div>
+                      <div>Outbound: {formatDate(enrichedContacts[contact.id]?.last_outbound_at || null)}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-3">
+                        {(enrichedContacts[contact.id]?.profile_id || enrichedContacts[contact.id]?.lead_id) && (
+                          <Link
+                            href={`/lead-profiles?profileId=${encodeURIComponent(
+                              enrichedContacts[contact.id]?.profile_id || ""
+                            )}&leadId=${encodeURIComponent(enrichedContacts[contact.id]?.lead_id || "")}`}
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                            title="Abrir Lead Profile"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => handleOpenEdit(contact)}
+                          className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(contact.id)}
+                          className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
                 {filteredContacts.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                    <td colSpan={9} className="px-6 py-8 text-center text-muted-foreground">
                       No se encontraron contactos.
                     </td>
                   </tr>

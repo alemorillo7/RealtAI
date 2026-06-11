@@ -1,7 +1,7 @@
 "use client";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { MessageSquare, Users, Tags, LogOut, Bot, Kanban, Menu, X, Calendar } from "lucide-react";
+import { MessageSquare, Users, Tags, LogOut, Bot, Kanban, Menu, X, Calendar, FileText } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,7 +25,11 @@ export default function DashboardLayout({
     { icon: Bot, label: "Agentes", href: "/agents" },
     { icon: Kanban, label: "Pipeline", href: "/pipeline" },
     { icon: Calendar, label: "Calendario", href: "/calendar" },
+    { icon: Calendar, label: "Visitas", href: "/visits" },
     { icon: Users, label: "Contactos", href: "/contacts" },
+    { icon: FileText, label: "Lead Profiles", href: "/lead-profiles" },
+    { icon: MessageSquare, label: "Human Handoffs", href: "/human-handoffs" },
+    { icon: MessageSquare, label: "Derivados", href: "/derived-contacts" },
     { icon: Tags, label: "Etiquetas", href: "/tags" },
   ];
 
