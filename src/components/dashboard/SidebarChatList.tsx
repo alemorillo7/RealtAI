@@ -13,6 +13,17 @@ interface Props {
   onSelectChat: (id: string) => void;
 }
 
+function toJsDate(value: unknown): Date {
+  if (!value) return new Date();
+  if (value instanceof Date) return value;
+  if (typeof value === "object" && value !== null && "toDate" in value && typeof value.toDate === "function") {
+    return value.toDate();
+  }
+
+  const parsedDate = new Date(String(value));
+  return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+}
+
 export default function SidebarChatList({ selectedChatId, onSelectChat }: Props) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,9 +86,9 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
                   <h3 className="text-foreground font-bold truncate">
                     {chat.real_name && chat.real_name !== "-" ? chat.real_name : (chat.user_name || chat.phone_number)}
                   </h3>
-                  {chat.updated_at && (
+                  {Boolean(chat.updated_at) && (
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2 opacity-70">
-                      {formatDistanceToNow(chat.updated_at.toDate(), {
+                      {formatDistanceToNow(toJsDate(chat.updated_at), {
                         addSuffix: true,
                         locale: es,
                       })}
