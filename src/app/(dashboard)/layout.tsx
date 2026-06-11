@@ -29,7 +29,6 @@ export default function DashboardLayout({
     { icon: Users, label: "Contactos", href: "/contacts" },
     { icon: FileText, label: "Lead Profiles", href: "/lead-profiles" },
     { icon: MessageSquare, label: "Human Handoffs", href: "/human-handoffs" },
-    { icon: MessageSquare, label: "Derivados", href: "/derived-contacts" },
     { icon: Tags, label: "Etiquetas", href: "/tags" },
   ];
 
