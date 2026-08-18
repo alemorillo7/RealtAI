@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Chat } from "@/types";
-import { Search, UserCircle2 } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -42,84 +42,107 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
   }, []);
 
   const filteredChats = chats.filter((chat) =>
-    (chat.user_name || chat.phone_number)
+    (chat.user_name || chat.phone_number || chat.real_name || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="flex flex-col h-full bg-card/90 backdrop-blur-xl border-r border-border z-10 relative shadow-sm">
-      <div className="p-5 border-b border-border">
-        <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Conversaciones</h2>
+    <div className="flex flex-col h-full bg-card border-r border-border z-10 relative">
+      {/* Top Header & Search */}
+      <div className="p-4 border-b border-border space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[15px] font-display font-semibold text-foreground tracking-tight">
+            Conversaciones
+          </h2>
+          <span className="text-[11px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+            {chats.length}
+          </span>
+        </div>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="h-3.5 w-3.5 text-muted-foreground group-focus-within:text-foreground transition-colors" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-border rounded-xl bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 sm:text-sm transition-all duration-300"
-            placeholder="Buscar chats..."
+            className="block w-full pl-9 pr-3 py-2 border border-border rounded-xl bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20 text-xs transition-all duration-150"
+            placeholder="Buscar por nombre o número..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+      {/* Chat List */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {filteredChats.map((chat) => {
           const isSelected = chat.phone_number === selectedChatId;
+          const isBotActive = chat.agent_active === true || chat.bot_active === true;
+          const displayName = chat.real_name && chat.real_name !== "-" ? chat.real_name : (chat.user_name || chat.phone_number);
+
           return (
             <button
               key={chat.phone_number}
               onClick={() => onSelectChat(chat.phone_number)}
-              className={`w-full text-left p-3 rounded-xl flex items-start gap-3 transition-all duration-200 border ${
+              className={`w-full text-left p-3 rounded-xl flex items-start gap-3 transition-all duration-150 border text-xs ${
                 isSelected
-                  ? "bg-muted border-border shadow-lg shadow-black/5"
-                  : "bg-transparent border-transparent hover:bg-muted/50 hover:border-border"
+                  ? "bg-muted/80 border-border text-foreground font-medium shadow-xs"
+                  : "bg-transparent border-transparent hover:bg-muted/40 hover:border-border/60 text-muted-foreground"
               }`}
             >
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                <UserCircle2 className="w-7 h-7 text-muted-foreground" />
+              {/* Avatar Initial Icon */}
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold border transition-colors ${
+                isSelected 
+                  ? "bg-foreground text-background border-foreground" 
+                  : "bg-muted text-foreground/70 border-border"
+              }`}>
+                {displayName.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
               </div>
+
+              {/* Chat Info */}
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="text-foreground font-bold truncate">
-                    {chat.real_name && chat.real_name !== "-" ? chat.real_name : (chat.user_name || chat.phone_number)}
+                <div className="flex justify-between items-baseline mb-0.5">
+                  <h3 className={`text-[13px] tracking-tight truncate ${isSelected ? "font-semibold text-foreground" : "font-medium text-foreground/90"}`}>
+                    {displayName}
                   </h3>
                   {Boolean(chat.updated_at) && (
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2 opacity-70">
+                    <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap ml-2 font-mono">
                       {formatDistanceToNow(toJsDate(chat.updated_at), {
-                        addSuffix: true,
+                        addSuffix: false,
                         locale: es,
                       })}
                     </span>
                   )}
                 </div>
+
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-sm text-muted-foreground truncate pr-2">
+                  <p className="text-[11.5px] text-muted-foreground truncate pr-2 font-mono">
                     {chat.phone_number}
                   </p>
+                  
+                  {/* Status indicator */}
                   <div
                     className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border whitespace-nowrap ${
-                      (chat.agent_active === true || chat.bot_active === true)
-                        ? "bg-green-500/10 text-green-500 border-green-500/20"
-                        : "bg-red-500/10 text-red-500 border-red-500/20"
+                      isBotActive
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                        : "bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/20"
                     }`}
                   >
                     <div
                       className={`w-1.5 h-1.5 rounded-full ${
-                        (chat.agent_active === true || chat.bot_active === true) ? "bg-green-500" : "bg-red-500"
+                        isBotActive ? "bg-emerald-500" : "bg-neutral-400"
                       }`}
                     />
-                    {(chat.agent_active === true || chat.bot_active === true) ? "Bot ON" : "Bot OFF"}
+                    {isBotActive ? "Bot ON" : "Bot OFF"}
                   </div>
                 </div>
+
                 {chat.tags && chat.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {chat.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-1.5 py-0.5 rounded text-[10px] bg-muted border border-border text-foreground whitespace-nowrap"
+                        className="px-1.5 py-0.5 rounded-md text-[9.5px] font-medium bg-background border border-border text-muted-foreground whitespace-nowrap"
                       >
                         {tag}
                       </span>
@@ -130,6 +153,12 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
             </button>
           );
         })}
+
+        {filteredChats.length === 0 && (
+          <div className="text-center py-8 px-4 text-xs text-muted-foreground">
+            No se encontraron conversaciones
+          </div>
+        )}
       </div>
     </div>
   );

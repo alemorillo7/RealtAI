@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Enterprise Light Mode — Monochrome */
+  /* Enterprise Light Mode — Crisp Monochrome */
   --background: #ffffff;
-  --foreground: #111111;
+  --foreground: #09090b;
   --card: #ffffff;
-  --card-foreground: #111111;
+  --card-foreground: #09090b;
   --popover: #ffffff;
-  --popover-foreground: #111111;
-  --primary: #111111;
+  --popover-foreground: #09090b;
+  --primary: #09090b;
   --primary-foreground: #ffffff;
-  --secondary: #F3F4F6;
-  --secondary-foreground: #111111;
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --accent: #F3F4F6;
-  --accent-foreground: #111111;
-  --destructive: #DC2626;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #09090b;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #111111;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #09090b;
   --radius: 0.5rem;
 
   /* Brand Colors (used in dark mode) */
@@ -96,14 +96,23 @@
   --font-mono: var(--font-space);
 }
 
+* {
+  border-color: var(--border);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-montserrat);
+  font-family: var(--font-montserrat), var(--font-inter), sans-serif;
+  letter-spacing: -0.025em;
   font-weight: 600;
 }
 
@@ -120,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb {
   background-color: var(--muted-foreground);
   border-radius: 10px;
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 ::-webkit-scrollbar-thumb:hover {

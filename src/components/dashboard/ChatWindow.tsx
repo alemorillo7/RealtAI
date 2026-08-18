@@ -10,7 +10,7 @@ import ChatInput from "./ChatInput";
 import { format } from "date-fns";
 import { formatInMadrid } from "@/lib/dateUtils";
 import { es } from "date-fns/locale";
-import { UserCircle2, Trash2, Check, CheckCheck } from "lucide-react";
+import { User, Trash2, Check, CheckCheck } from "lucide-react";
 
 interface Props {
   chatId: string;
@@ -111,23 +111,23 @@ export default function ChatWindow({ chatId }: Props) {
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-border bg-card flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div className="p-3.5 px-5 border-b border-border bg-card flex items-center justify-between sticky top-0 z-30 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center border border-border shadow-inner">
-            <UserCircle2 className="w-6 h-6 text-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-foreground text-background font-bold text-sm flex items-center justify-center border border-border shadow-xs">
+            {chatName.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
           </div>
           <div>
-            <h3 className="text-foreground font-semibold text-lg tracking-tight leading-tight">{chatName}</h3>
-            {chatName !== chatId && <p className="text-xs text-muted-foreground font-medium">{chatId}</p>}
+            <h3 className="text-foreground font-semibold text-[15px] tracking-tight leading-snug">{chatName}</h3>
+            {chatName !== chatId && <p className="text-[11px] text-muted-foreground font-mono">{chatId}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={handleDeleteChat}
-            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-200"
+            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-150"
             title="Eliminar Conversación"
           >
-            <Trash2 className="w-5 h-5" />
+            <Trash2 className="w-4 h-4" />
           </button>
           <TagSelector chatId={chatId} />
           <BotToggle chatId={chatId} />
@@ -135,7 +135,7 @@ export default function ChatWindow({ chatId }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
         {messages.map((msg, index) => {
           const isAgent = msg.sender === "agent";
           
@@ -149,8 +149,8 @@ export default function ChatWindow({ chatId }: Props) {
           return (
             <div key={msg.id} className="space-y-4">
               {showDateDivider && (
-                <div className="flex justify-center my-6">
-                  <span className="text-[10px] font-bold text-muted-foreground/80 bg-background/40 backdrop-blur-sm border border-border px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                <div className="flex justify-center my-4">
+                  <span className="text-[11px] font-medium text-muted-foreground bg-muted/80 border border-border px-3 py-1 rounded-full font-mono shadow-2xs">
                     {formatInMadrid(msgDate, "d 'de' MMMM")}
                   </span>
                 </div>
@@ -159,10 +159,10 @@ export default function ChatWindow({ chatId }: Props) {
                 className={`flex ${isAgent ? "justify-end" : "justify-start"} group relative z-10`}
               >
                 <div
-                  className={`max-w-[85%] sm:max-w-[70%] px-5 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
+                  className={`max-w-[85%] sm:max-w-[70%] px-4 py-3 shadow-xs transition-all duration-150 ${
                     isAgent
-                      ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
-                      : "bg-card border border-border text-foreground rounded-2xl rounded-tl-sm shadow-sm"
+                      ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-xs"
+                      : "bg-card border border-border text-foreground rounded-2xl rounded-tl-xs"
                   }`}
                 >
                   {msg.type === "audio" ? (
@@ -174,30 +174,30 @@ export default function ChatWindow({ chatId }: Props) {
                       <img 
                         src={msg.message} 
                         alt="Imagen de chat" 
-                        className="w-full h-auto rounded-xl border border-border/50 shadow-sm cursor-zoom-in hover:opacity-95 transition-all active:scale-[0.98]"
+                        className="w-full h-auto rounded-xl border border-border/50 shadow-xs cursor-zoom-in hover:opacity-95 transition-all active:scale-[0.98]"
                         onClick={() => window.open(msg.message, '_blank')}
                       />
                     </div>
                   ) : (
-                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                    <p className="text-[13.5px] whitespace-pre-wrap break-words leading-relaxed">
                       {renderMessageWithLinks(msg.message)}
                     </p>
                   )}
                   {Boolean(msg.created_at) && (
                     <p
-                      className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 ${
-                        isAgent ? "text-primary-foreground/80" : "text-muted-foreground"
+                      className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 font-mono ${
+                        isAgent ? "text-primary-foreground/75" : "text-muted-foreground"
                       }`}
                     >
                       {formatInMadrid(msgDate, "HH:mm")}
                       {isAgent && (
                         <span className="ml-0.5">
                           {msg.status === 'read' ? (
-                            <CheckCheck className="w-[14px] h-[14px] text-[#34B7F1]" />
+                            <CheckCheck className="w-[13px] h-[13px] text-[#34B7F1]" />
                           ) : msg.status === 'delivered' ? (
-                            <CheckCheck className="w-[14px] h-[14px] text-primary-foreground/70" />
+                            <CheckCheck className="w-[13px] h-[13px] text-primary-foreground/70" />
                           ) : (
-                            <Check className="w-[14px] h-[14px] text-primary-foreground/70" />
+                            <Check className="w-[13px] h-[13px] text-primary-foreground/70" />
                           )}
                         </span>
                       )}
