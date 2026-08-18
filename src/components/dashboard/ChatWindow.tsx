@@ -110,11 +110,8 @@ export default function ChatWindow({ chatId }: Props) {
 
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">
-      {/* Patrón de fondo (Grid) premium */}
-      <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-[0.03] dark:opacity-[0.02]" />
-      
       {/* Header */}
-      <div className="p-4 border-b border-border bg-card/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div className="p-4 border-b border-border bg-card flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center border border-border shadow-inner">
             <UserCircle2 className="w-6 h-6 text-foreground" />
@@ -164,7 +161,7 @@ export default function ChatWindow({ chatId }: Props) {
                 <div
                   className={`max-w-[85%] sm:max-w-[70%] px-5 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
                     isAgent
-                      ? "bg-gradient-to-b from-primary to-gold-dark text-primary-foreground rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
+                      ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm ring-1 ring-black/10 shadow-primary/10"
                       : "bg-card border border-border text-foreground rounded-2xl rounded-tl-sm shadow-sm"
                   }`}
                 >
@@ -189,7 +186,7 @@ export default function ChatWindow({ chatId }: Props) {
                   {Boolean(msg.created_at) && (
                     <p
                       className={`text-[10px] mt-1 text-right flex justify-end items-center gap-1 ${
-                        isAgent ? "text-white/80" : "text-muted-foreground"
+                        isAgent ? "text-primary-foreground/80" : "text-muted-foreground"
                       }`}
                     >
                       {formatInMadrid(msgDate, "HH:mm")}
@@ -198,9 +195,9 @@ export default function ChatWindow({ chatId }: Props) {
                           {msg.status === 'read' ? (
                             <CheckCheck className="w-[14px] h-[14px] text-[#34B7F1]" />
                           ) : msg.status === 'delivered' ? (
-                            <CheckCheck className="w-[14px] h-[14px] text-white/70" />
+                            <CheckCheck className="w-[14px] h-[14px] text-primary-foreground/70" />
                           ) : (
-                            <Check className="w-[14px] h-[14px] text-white/70" />
+                            <Check className="w-[14px] h-[14px] text-primary-foreground/70" />
                           )}
                         </span>
                       )}

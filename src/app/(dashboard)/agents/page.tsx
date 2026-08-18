@@ -116,7 +116,7 @@ export default function AgentsPage() {
   return (
     <div className="flex flex-col h-full bg-background text-foreground overflow-hidden">
       {/* Header / Top Navigation */}
-      <div className="px-6 pt-6 pb-2 border-b border-border bg-card/40 backdrop-blur-md shrink-0">
+      <div className="px-6 pt-6 pb-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-8 mb-6">
           {mainTabs.map((tab) => (
             <button
@@ -317,7 +317,7 @@ export default function AgentsPage() {
           <button 
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50 mt-4"
+            className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-sm disabled:opacity-50 mt-4"
           >
             {isSubmitting ? "Creando..." : "Activar Agente"}
           </button>

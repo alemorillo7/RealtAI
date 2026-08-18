@@ -201,7 +201,7 @@ export default function CalendarPage() {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* Header */}
-      <div className="p-8 border-b border-border/40 bg-card/20 backdrop-blur-xl flex items-center justify-between shadow-sm relative z-20">
+      <div className="p-8 border-b border-border bg-card flex items-center justify-between shadow-sm relative z-20">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-1 h-6 bg-primary rounded-full" />
@@ -246,7 +246,7 @@ export default function CalendarPage() {
               setNewEvent({ ...newEvent, date: getTodayInMadrid() });
               setIsModalOpen(true);
             }}
-            className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium shadow-lg shadow-primary/20"
+            className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium shadow-sm"
           >
             <Plus className="w-5 h-5" />
             <span>Nueva Cita</span>
@@ -256,10 +256,10 @@ export default function CalendarPage() {
 
       {/* Calendar Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-7 bg-border/20 border border-border/40 rounded-3xl overflow-hidden shadow-2xl shadow-black/20 backdrop-blur-xl">
+        <div className="grid grid-cols-7 bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
           {/* Weekdays */}
           {["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"].map((day) => (
-            <div key={day} className="bg-card/40 backdrop-blur-sm py-4 text-center text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] border-b border-border/40">
+            <div key={day} className="bg-card py-4 text-center text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] border-b border-border">
               {day}
             </div>
           ))}
@@ -274,13 +274,13 @@ export default function CalendarPage() {
               <div 
                 key={i} 
                 onClick={() => handleDayClick(day)}
-                className={`min-h-[130px] bg-card/20 p-3 transition-all hover:bg-primary/5 cursor-pointer relative group border-r border-b border-border/30 last:border-r-0 ${
-                  !isSelectedMonth ? "opacity-[0.15]" : "backdrop-blur-sm"
+                className={`min-h-[130px] bg-card p-3 transition-all hover:bg-primary/5 cursor-pointer relative group border-r border-b border-border last:border-r-0 ${
+                  !isSelectedMonth ? "opacity-[0.15]" : ""
                 }`}
               >
                 <div className={`text-sm font-bold mb-3 w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-300 ${
                   isTodayDay 
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40 scale-110" 
+                    ? "bg-primary text-primary-foreground shadow-sm scale-110" 
                     : "text-foreground/40 group-hover:text-foreground/80"
                 }`}>
                   {format(day, "d")}
@@ -291,7 +291,7 @@ export default function CalendarPage() {
                     <div 
                       key={event.id}
                       onClick={(e) => handleEventClick(e, event)}
-                      className={`text-[11px] p-1.5 px-2 rounded-lg border border-white/10 truncate transition-all hover:brightness-110 hover:translate-x-0.5 active:scale-95 shadow-lg shadow-black/10 text-white font-semibold backdrop-blur-md bg-opacity-80 ${event.color || 'bg-primary'}`}
+                      className={`text-[11px] p-1.5 px-2 rounded-lg border border-black/10 dark:border-white/10 truncate transition-all hover:brightness-110 hover:translate-x-0.5 active:scale-95 shadow-sm font-semibold ${event.color === 'bg-primary' || !event.color ? 'bg-primary text-primary-foreground' : `${event.color} text-white`}`}
                     >
                       {event.time && <span className="opacity-80 mr-1.5 font-bold tabular-nums">{event.time}</span>}
                       <span className="tracking-tight">{event.title}</span>
@@ -435,7 +435,7 @@ export default function CalendarPage() {
             )}
             <button 
               type="submit"
-              className="flex-[2] bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20"
+              className="flex-[2] bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-sm"
             >
               {selectedEvent ? "Guardar Cambios" : "Crear Cita"}
             </button>
@@ -469,7 +469,7 @@ export default function CalendarPage() {
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                     calendarConfig.working_days.includes(day.id)
-                      ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
                       : "bg-background text-muted-foreground border-border hover:border-primary/50"
                   }`}
                 >
@@ -550,7 +550,7 @@ export default function CalendarPage() {
 
           <button 
             onClick={handleSaveConfig}
-            className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20"
+            className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl transition-all shadow-sm"
           >
             Guardar Configuración
           </button>
@@ -565,11 +565,12 @@ export default function CalendarPage() {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(212, 175, 55, 0.2);
+          background: var(--muted-foreground);
+          opacity: 0.3;
           border-radius: 20px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(212, 175, 55, 0.4);
+          background: var(--foreground);
         }
       `}</style>
     </div>

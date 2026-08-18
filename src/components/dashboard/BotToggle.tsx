@@ -48,7 +48,7 @@ export default function BotToggle({ chatId }: Props) {
       disabled={loading}
       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
         isBotActive
-          ? "bg-primary text-white border-primary-dark"
+          ? "bg-primary text-primary-foreground border-primary"
           : "bg-transparent text-muted-foreground border-border hover:border-muted-foreground hover:text-foreground"
       }`}
     >

@@ -76,7 +76,7 @@ export default function TagsPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-bold shadow-lg shadow-primary/20"
+          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-bold shadow-sm"
         >
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">Nueva Etiqueta</span>
@@ -114,7 +114,7 @@ export default function TagsPage() {
             </div>
           ))}
           {tags.length === 0 && (
-            <div className="col-span-full py-8 text-center text-muted-foreground bg-card rounded-xl border border-gray-medium/20">
+            <div className="col-span-full py-8 text-center text-muted-foreground bg-card rounded-xl border border-border">
               No se encontraron etiquetas. Crea una nueva para empezar.
             </div>
           )}
@@ -123,7 +123,7 @@ export default function TagsPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
           <div className="bg-card rounded-2xl p-6 w-full max-w-sm border border-border shadow-2xl animate-in zoom-in-95 duration-200">
             <h2 className="text-xl font-bold text-foreground mb-4">
               {editingTag ? "Editar Etiqueta" : "Nueva Etiqueta"}
@@ -162,7 +162,7 @@ export default function TagsPage() {
                 </button>
                  <button
                   type="submit"
-                  className="px-6 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all shadow-md"
+                  className="px-6 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all shadow-sm"
                 >
                   Guardar
                 </button>

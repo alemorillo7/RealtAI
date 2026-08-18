@@ -115,7 +115,7 @@ export default function VisitsPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b border-border bg-card/80 backdrop-blur-md flex justify-between items-center z-10">
+      <div className="p-6 border-b border-border bg-card flex justify-between items-center z-10">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Visitas</h1>
           <p className="text-muted-foreground text-sm mt-1">

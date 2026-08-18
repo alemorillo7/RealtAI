@@ -37,7 +37,7 @@ export default function ChatInput({ chatId }: Props) {
 
   return (
     <div className="p-4 md:px-6 md:pb-6 bg-transparent">
-      <form onSubmit={handleSend} className="flex gap-3 bg-card/60 backdrop-blur-xl p-2 rounded-2xl border border-border shadow-sm focus-within:border-primary/50 focus-within:shadow-primary/10 transition-all duration-300">
+      <form onSubmit={handleSend} className="flex gap-3 bg-card p-2 rounded-2xl border border-border shadow-sm focus-within:border-primary/50 transition-all duration-300">
         <input
           type="text"
           value={message}
@@ -51,7 +51,7 @@ export default function ChatInput({ chatId }: Props) {
           className="bg-primary hover:opacity-90 text-primary-foreground p-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm active:scale-95"
         >
           {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
           ) : (
             <Send className="w-5 h-5 translate-x-[-1px] translate-y-[1px]" />
           )}

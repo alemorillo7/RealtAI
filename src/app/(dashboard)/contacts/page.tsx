@@ -228,14 +228,14 @@ export default function ContactsPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b border-border bg-card/80 backdrop-blur-md flex justify-between items-center z-10">
+      <div className="p-6 border-b border-border bg-card flex justify-between items-center z-10">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Contactos</h1>
           <p className="text-muted-foreground text-sm mt-1">Gestión de base de clientes</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-200 shadow-md shadow-primary/20 hover:scale-105"
+          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-200 shadow-sm hover:scale-105"
         >
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline font-medium">Nuevo Contacto</span>
@@ -375,7 +375,7 @@ export default function ContactsPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
           <div className="bg-card rounded-2xl p-6 w-full max-w-md border border-border shadow-2xl animate-in zoom-in-95 duration-200">
             <h2 className="text-xl font-bold text-foreground mb-4">
               {editingContact ? "Editar Contacto" : "Nuevo Contacto"}
@@ -438,7 +438,7 @@ export default function ContactsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors shadow-md shadow-primary/20"
+                  className="px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground rounded-lg transition-colors shadow-sm"
                 >
                   Guardar
                 </button>

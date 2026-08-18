@@ -47,15 +47,15 @@ function badgeClass(value: string | null) {
   const normalized = (value || "").toLowerCase();
 
   if (normalized.includes("resolved")) {
-    return "bg-green-500/10 text-green-400 border-green-500/20";
+    return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
   }
 
   if (normalized.includes("pending") || normalized.includes("review")) {
-    return "bg-yellow-500/10 text-yellow-300 border-yellow-500/20";
+    return "bg-yellow-500/10 text-yellow-800 dark:text-yellow-300 border-yellow-500/20";
   }
 
   if (normalized.includes("urgent") || normalized.includes("high") || normalized.includes("escalated")) {
-    return "bg-red-500/10 text-red-400 border-red-500/20";
+    return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
   }
 
   return "bg-muted text-muted-foreground border-border";
@@ -136,7 +136,7 @@ export default function HumanHandoffsPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b border-border bg-card/80 backdrop-blur-md flex justify-between items-center z-10">
+      <div className="p-6 border-b border-border bg-card flex justify-between items-center z-10">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Human Handoffs</h1>
           <p className="text-muted-foreground text-sm mt-1">

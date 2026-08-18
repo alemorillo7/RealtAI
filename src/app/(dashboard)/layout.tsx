@@ -37,7 +37,7 @@ export default function DashboardLayout({
       <div className="flex h-screen bg-background text-foreground overflow-hidden relative">
         
         {/* Mobile Header */}
-        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 z-40">
+        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-card shadow-sm border-b border-border flex items-center justify-between px-4 z-40">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg overflow-hidden border border-border shadow-sm">
               <img 
@@ -61,7 +61,7 @@ export default function DashboardLayout({
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div 
-            className="md:hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-[50] animate-in fade-in duration-300"
+            className="md:hidden fixed inset-0 bg-background/80 z-[50] animate-in fade-in duration-300"
             onClick={() => setIsSidebarOpen(false)}
           >
             <div 
@@ -115,10 +115,10 @@ export default function DashboardLayout({
         )}
 
         {/* Desktop Side Nav */}
-        <div className="w-20 lg:w-64 bg-card/50 backdrop-blur-md border-r border-border flex flex-col justify-between hidden md:flex z-20">
+        <div className="w-20 lg:w-64 bg-card border-r border-border flex flex-col justify-between hidden md:flex z-20">
           <div className="p-4">
             <div className="flex items-center gap-3 px-2 mb-8 mt-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-black/10 group-hover:shadow-primary/20 transition-all duration-300 group-hover:scale-105 border border-border bg-white">
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-black/10 group-hover:shadow-black/20 transition-all duration-300 group-hover:scale-105 border border-border bg-white">
                 <img 
                   src="/realtai-logo.jpeg" 
                   alt="RealtAI Logo" 
@@ -166,7 +166,6 @@ export default function DashboardLayout({
 
         {/* Dynamic Content */}
         <main className="flex-1 overflow-hidden bg-background relative pt-16 md:pt-0">
-          <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-[0.03] dark:opacity-[0.02]" />
           <div className="relative h-full">{children}</div>
         </main>
       </div>

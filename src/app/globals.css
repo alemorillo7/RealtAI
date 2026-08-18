@@ -1,28 +1,29 @@
 @import "tailwindcss";
 
 :root {
+  /* Enterprise Light Mode — Monochrome */
   --background: #ffffff;
-  --foreground: #0A1A2F;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #0A1A2F;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #0A1A2F;
-  --primary: #FFD047;
-  --primary-foreground: #0A1A2F;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #0B1539;
-  --muted: #f4f4f5;
-  --muted-foreground: #2F3033;
-  --accent: #2ED39F;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #FFD047;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #ffffff;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #111111;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --accent: #F3F4F6;
+  --accent-foreground: #111111;
+  --destructive: #DC2626;
+  --destructive-foreground: #ffffff;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #111111;
   --radius: 0.5rem;
 
-  /* Brand Colors */
+  /* Brand Colors (used in dark mode) */
   --brand-navy: #0A1A2F;
   --brand-navy-light: #0B1539;
   --brand-gold: #FFD047;
@@ -76,7 +77,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   
-  /* Brand color aliases */
+  /* Brand color aliases (dark mode) */
   --color-navy: var(--brand-navy);
   --color-navy-light: var(--brand-navy-light);
   --color-gold: var(--brand-gold);
@@ -117,11 +118,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--brand-gold);
+  background-color: var(--muted-foreground);
   border-radius: 10px;
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--brand-gold-dark);
+  background-color: var(--foreground);
 }

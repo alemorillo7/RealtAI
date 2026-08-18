@@ -48,7 +48,7 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
   );
 
   return (
-    <div className="flex flex-col h-full bg-card/90 backdrop-blur-xl border-r border-border z-10 relative shadow-xl">
+    <div className="flex flex-col h-full bg-card/90 backdrop-blur-xl border-r border-border z-10 relative shadow-sm">
       <div className="p-5 border-b border-border">
         <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Conversaciones</h2>
         <div className="relative group">
@@ -57,7 +57,7 @@ export default function SidebarChatList({ selectedChatId, onSelectChat }: Props)
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-border rounded-xl bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 sm:text-sm transition-all duration-300 shadow-inner"
+            className="block w-full pl-10 pr-3 py-2.5 border border-border rounded-xl bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 sm:text-sm transition-all duration-300"
             placeholder="Buscar chats..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
